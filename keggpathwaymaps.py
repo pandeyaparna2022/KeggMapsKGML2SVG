@@ -135,5 +135,5 @@ xml_file="hsa400.xml"
 ap=KEGGPathway(xml_file)
 
 #ap.create_svg_map()
-ap.create_svg_map(add_linear_gradient_to_svg,['34','35','36','90'],['red','pink'])
+ap.create_svg_map(add_linear_gradient_to_svg,['9999','35','36','90'],['red','pink'])
 
