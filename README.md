@@ -1,1 +1,1 @@
-# KeggMaps_KGML2SVG
+# KeggMapsKGML2SVG
