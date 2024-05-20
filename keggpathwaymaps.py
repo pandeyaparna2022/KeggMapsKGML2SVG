@@ -15,6 +15,8 @@ from preprocess_pathway_data import extract_png_info, xml_path_from_map_id,merge
 from download_data import download_kgml,download_base_png_maps
 #from svg_content_element_tree import SvgContent
 from svg_content import create_svg_content
+#from color_functions import add_linear_gradient_to_svg, color_all,color_custom_annotations
+
 
 PROG_NAME = 'json2svg'
 PROG_VER  = '01'
@@ -132,5 +134,6 @@ xml_file="hsa400.xml"
         
 ap=KEGGPathway(xml_file)
 
-ap.create_svg_map()
+#ap.create_svg_map()
+ap.create_svg_map(add_linear_gradient_to_svg,['34','35','36','90'],['red','pink'])
 

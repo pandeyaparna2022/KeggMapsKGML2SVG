@@ -70,7 +70,7 @@ def color_all(*args, data=None):
     
     return root
 
-def custom_annotations(query:list,*args,data):  
+def color_custom_annotations(query:list,*args,data):  
     '''Color only shapes with indicated annotation red'''
     # Parse the element_tree object
     root = data
@@ -97,5 +97,3 @@ def custom_annotations(query:list,*args,data):
 
     return root
         
-    
-#ap.create_svg(add_linear_gradient_to_svg3,['34','35','36','90'])

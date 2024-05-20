@@ -145,22 +145,11 @@ def create_svg_content(data, organism, pathway_id, width, height, image_data,col
     
     # append the group element to the doc XML element
     doc.append(group)
-    
-    # Create an XML element with the tag 'pattern' and attributes 'id', 'width', 
-    # 'height', 'patternUnits', and 'style' set to the corresponding values
-    pattern = ET.Element('pattern', id=f"{pathway_id}", width="{self.width}", height="{self.height}", patternUnits="userSpaceOnUse", style="pointer-events: none")
-    # create the image element within the pattern element
-    image = ET.SubElement(pattern, 'image')
-    # # Set the 'xlink:href' attribute of the image element using the value of 
-    # the self.image_data variable
-    image.set('xlink:href', "data:image/png;base64,{self.image_data}")
-    # Set the 'width' and 'height' attribute of the image element using the value of the 
-    # width and height variable
-    image.set('width', "{width}")
-    image.set('height', "{height}")
-    
+ 
     # Create an XML element with the tag 'defs' and assign it to the defs variable
     defs = ET.Element('defs')
+    # Create an subelement with the tag 'pattern' and attributes 'id', 'width', 
+    # 'height', 'patternUnits', and 'style' set to the corresponding values
     # append the pattern element to the defs element
     pattern = ET.SubElement(defs, 'pattern')
     pattern.set('id', pathway_id)
@@ -168,10 +157,17 @@ def create_svg_content(data, organism, pathway_id, width, height, image_data,col
     pattern.set('height', height)
     pattern.set('patternUnits', 'userSpaceOnUse')
     pattern.set('style', 'pointer-events: none')
+    # create the image element within the pattern element
     image = ET.SubElement(pattern, 'image')
+    # Set the 'xlink:href' attribute of the image element using the value of 
+    # the image_data variable
     image.set('xlink:href', f'data:image/png;base64,{image_data}')
+    # Set the 'width' and 'height' attribute of the image element using the value of the 
+    # width and height variable
     image.set('width', width)
     image.set('height', height)
+    
+    # append the defs element to the doc XML element
     doc.append(defs)
 
     # Create an XML element with the tag 'rect' and attributes 'x', 'y', 'fill',
