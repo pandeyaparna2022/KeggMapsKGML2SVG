@@ -9,7 +9,8 @@ from xml.etree import ElementTree as ET
 import json
 import re
 import os
-DATA_DIR = 'C:\\Users\\aparn\\Desktop\\masters_thesis\\Kegg_maps_aparna'
+
+DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
 def extract_png_info(pathway_id):
     """
     Extracts information from a PNG file based on the given 

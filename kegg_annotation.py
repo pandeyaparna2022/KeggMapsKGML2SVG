@@ -4,10 +4,9 @@ Created on Thu Mar 28 16:47:56 2024
 
 @author: Aparna
 """
-
+import os
 from annotation_setting_ap import ANNOTATION_SETTINGS
 from pathway_component import PathwayComponent
-import os
 from download_data import download_rest_data
 
 class KeggAnnotation(PathwayComponent):
@@ -75,33 +74,30 @@ class KeggAnnotation(PathwayComponent):
         except FileNotFoundError:
             return "Undefined"
 
-    #query1 = data_type
-    # eg : ['enzyme', 'reaction']
-    #query2 = info['name'][index]
-    # eg: ['ec:1.3.1.79', 'rn:R00732 rn:R00733 rc:RC00125']
-
        
     def get_annotation(self,query1: list, query2: list):
         """
         Create annotation and get the description of the annotation.
 
-        :param query1: description of query type 
-        :param query: query to be annotated
+        :param query1: list describing the query type e.g. map, gene, enzyme, compound, etc.
+        :param query2: query to be annotated e.g.cpd:C000500 (actual name of the compound in the map)
         :return: description. If none is found, an empty string is returned and a warning is printed.
         """
+        # Create empty dictionary and empty lists for later
         dictionary={}
         data_annotations = []
         html_classes = []
         title_descriptions = []
 
         queries = ['compound','map','enzyme','ortholog','reaction','gene','group','brite','other']
-                
+        
+        # Assert that the query type is legitimate
         for element in query1:
             assert element in queries
-
+        # converts the elements of query1 to lowercase
         for index in range(len(query1)):
             data_type = query1[index].lower()     
-            
+            # split string at query2[index] into multiple substrings based on whitespace characters.
             data_names = query2[index].split()
             for part in data_names:
                 parts = part.split(":", 1)
@@ -177,4 +173,3 @@ class KeggAnnotation(PathwayComponent):
      
         return self.data_annotation
 
-#result = KeggAnnotation.get_annotation(['map', 'enzyme','reaction'],['path:ko00362', 'EC:1.3.1.79', 'rn:R00733 rc:RC00125'])          

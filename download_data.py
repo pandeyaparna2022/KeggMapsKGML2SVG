@@ -13,7 +13,7 @@ import json
 import requests
 from PIL import Image
 
-
+DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
 ## TO DO ## INCORPORATE PARALLEL PROCESSING
 def download_data(url: str, arg: str, path: str, verbose: bool = True):
     """handle the downloading of data based on a url and an argument.
@@ -484,11 +484,3 @@ def check_input(map_ids: list):
     return map_id_list
 
         
-## Define DATA_DIR
-DATA_DIR = os.getcwd()
-
-#args_list = ['pathway', 'rn', 'compound', 'drug', 'glycan', 'dgroup', 'enzyme', 'br', 'rc','ap','ko']
-#download_rest_data(args_list, False)
-#map_ids = extract_all_map_ids()
-#download_base_png_maps(map_ids, False) #map_ids needs to be a list 
-#download_kgml(map_ids, False)
