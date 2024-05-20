@@ -2,15 +2,10 @@
 """
 Created on Mon May 20 17:08:02 2024
 
-@author: aparn
+@author: aparna
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 20 13:33:34 2024
 
-@author: aparn
-"""
 from xml.etree import ElementTree as ET
 def add_linear_gradient_to_svg(shape_id:list, colors:list=['yellow', 'red', 'blue', 'green'],data=data):
     root = data
