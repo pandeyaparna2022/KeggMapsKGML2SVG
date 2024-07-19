@@ -4,8 +4,10 @@ Created on Fri Feb  9 14:40:51 2024
 
 @author: Aparna
 """
+
 import os
-from random import randint
+
+import random
 import multiprocessing
 import logging
 #import download_final
@@ -61,5 +63,11 @@ args_list = ['pathway', 'rn', 'compound', 'drug', 'glycan', 'dgroup', 'enzyme', 
 
 download_rest_data(args_list, False)
 map_ids = extract_all_map_ids()
-download_base_png_maps(map_ids, False)
-download_kgml(map_ids, False)
+random_map_ids = random.sample(map_ids, 5)
+# For testing download only a subset of the map ids 
+random_map_ids = random.sample(map_ids, 5)
+download_base_png_maps(random_map_ids, False)
+download_kgml(random_map_ids, False)
+# To download all available maps and associated data uncomment the code below
+#download_base_png_maps(map_ids, False)
+#download_kgml(map_ids, False)

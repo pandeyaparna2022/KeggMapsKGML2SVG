@@ -17,14 +17,12 @@ ANNOTATION_SETTINGS = dict(
         descr_prefix='ec:'),
     R=dict(
         html_class='enzyme',
-        type='KEGG Reaction',
-        
+        type='KEGG Reaction',        
         rest_file='rn',
         descr_prefix='rn:'),
     RC=dict(
         html_class='enzyme',
-        type='KEGG Reaction Class',
-        
+        type='KEGG Reaction Class',        
         rest_file='rc',
         descr_prefix='rc:'),
     C=dict(
