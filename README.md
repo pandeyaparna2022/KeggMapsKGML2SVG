@@ -153,6 +153,6 @@ svg_map = KeggPathwayMap("00400")
 # Create SVG
 svg_map.create_svg_map(color_all, 'green', path = 'path/to/desired/directory',output_name = 'desired_name')
 ```
-
+![colored all](./resources/ko_ec_rn_hsa00400.svg)
 > **Warning**
 > In the coloring functions provided in color_function_base.py script 
