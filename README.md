@@ -180,7 +180,22 @@ svg_map.create_svg_map(color_custom_annotations,annotation_data,'red',path = "./
 ```
 ![Customized annotation coloring](./resources/customized_coloring_multtiple_genome.svg)
 
-> **Warning**
-> In the coloring functions provided in color_function_base.py script color can be specified in the additional arguments but it should always be the last additional argument prior to path and output name. This was a personal choice , users can create their own coloring functions as per their need.
+Additionally, a list of custom colors can also be provided for each genome annotation.
 
-a.create_svg_map(color_org,'hsa','green',path = "./SVG_output/",output_name="org_specific_visualization")
+```python
+annotation_data = {'genome1': ['K13830', 'K01609', 'K14455', 'K24017'],
+ 'genome2': ['K01609', 'K13832', 'K14455', 'K13497'],
+ 'genome3': ['K13830', 'K24017', 'K14455', 'K01609'],
+ 'genome4': ['K17749', 'K01609', 'K14455', 'K24017']}
+
+# Create KeggMap object
+svg_map = KeggPathwayMap("00400")
+# Create SVG
+svg_map.create_svg_map(color_custom_annotations,annotation_data,['yellow', 'red', 'blue', 'green'],path = "./resources/",output_name="customized_coloring_multtiple_genome_multiple_colors")
+```
+
+![Customized annotation coloring multiple colors](./resources/customized_coloring_multtiple_genome_multiple_colors.svg)
+
+> **Warning**
+> In the coloring functions defined within the color_function_base.py script, color specifications must be included as the final additional argument, preceding the path and output name. This design choice was made to enhance usability; however, users are encouraged to develop their own coloring functions to suit their specific requirements.
+
