@@ -176,7 +176,7 @@ annotation_data = {'genome1': ['K13830', 'K01609', 'K14455', 'K24017'],
 # Create KeggMap object
 svg_map = KeggPathwayMap("00400")
 # Create SVG
-svg_map.create_svg_map(color_custom_annotations,annotation_data,'yellow',path = "./resources/",output_name="customized_coloring_multtiple_genome")
+svg_map.create_svg_map(color_custom_annotations,annotation_data,'red',path = "./resources/",output_name="customized_coloring_multtiple_genome")
 ```
 ![Customized annotation coloring](./resources/customized_coloring_multtiple_genome.svg)
 
