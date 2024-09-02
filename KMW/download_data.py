@@ -240,11 +240,11 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
     # 2) already present only if reload == True
 
     map_ids = check_bad_requests(map_ids, path, bad_requests_file, verbose)
-    map_numbers = list(map(lambda x: x[-5:], map_ids))
+    map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
     
     if not reload:
         map_ids = [map_id for map_id in map_ids if not os.path.isfile(f'{path}/{"map"+map_id[-5:]}.png')]
-        map_numbers = list(map(lambda x: x[-5:], map_ids))
+        map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
 
 
     if len(map_ids) == 0:

@@ -16,45 +16,119 @@ import random
 
 def color_all(*args, data):
     # Parse the element_tree object
+    
     root = data
     elements = root.find('.//g')
     if args:
         color = args[0]
     else:
-        color = 'red'
+        color = 'blue'
     # Set the fill of each element to the specified color
     for element in elements:
         element.set('fill', color)
+        element.set('stroke', color)
+        element.set('stroke-width', '3')
+        element.set('fill', color)
+        element.set('fill-opacity', '0.15')
     
     return root
 
-def color_custom_annotations(query:list,*args,data):  
-    '''Color only shapes with indicated annotation red'''
+def color_org(org,*args, data):
     # Parse the element_tree object
     root = data
-   
-    
-    if args:
-        color = args[0]
-    else:
-        color = 'pink'
-    
     elements = root.find('.//g')
+    # Determine the color to use; default to 'blue' if not provided
+    color = args[0] if args else 'blue'
     
-   
-    # Set the fill of each element to the specified color
-    
-    for shapes in elements:
-        for element in shapes:
-            title_text = []
-            if element.tag == 'title':
-                title_text = eval(element.text)
-    
-            for anno in query:
-                if any(anno in item for item in title_text):
-                    print(anno)
-                    shapes.set('fill', color)
+    # Set the stroke of each element to the specified color
 
+    for shapes in elements:
+        # Extract the title element from shapes
+        title_element = shapes.find('title')
+      
+        # Extract the title text if the title element           
+        title_text = eval(title_element.text)
+        
+        # process the organism prefix to match the format in SVG
+        query = org + ":"
+        
+        if any(query in item for item in title_text):
+            
+            shapes.set('stroke', color)
+            shapes.set('stroke-width', '3')
+            shapes.set('fill', color)
+            shapes.set('fill-opacity', '0.15')
+    
+    return root
+
+def color_custom_annotations(query:dict,*args,data):  
+    '''Color only shapes with indicated annotation blue'''
+    colors = []
+    # Use the provided data as the root of the XML tree
+    root = data
+    
+    # Determine the color to use; default to 'blue' if not provided
+    color = args[0] if args else 'blue'
+    
+    # Find the group of elements in the SVG
+    elements = root.find('.//g')
+    # Set the fill of each element to the specified color
+   
+    # Return early if the query is empty
+    if not query:
+        return root
+    # if the length of query is less than 5 execute the following commands
+    if len(query) < 5:
+        
+        for shapes in elements:
+            
+            # Extract the title element from shapes
+            title_element = shapes.find('title')
+          
+            # Extract the title text if the title element           
+            title_text = eval(title_element.text)
+        
+            # Define an empty list for colors to store colors if there are more than one query
+            colors = []
+           
+            # Iterate over each key-value pair in the query
+            for key, values in query.items():
+                # Check if any value in the list of values of the query dictionary
+                # matches the title text
+                           
+                if any(value in item for item in title_text for value in values):
+                    colors.append(color)  # Add the specified color
+                else:
+                    colors.append('white') # Default to white
+                    
+                # Update title text based on matches
+                for value in values:
+                    if any(value in item for item in title_text):
+                        # Create a new list to replace items
+                        updated_title_text = []
+                        # Update title text with the key
+                        for item in title_text:                            
+                            if (value in item):   
+                                updated_title_text.append(f"{key}:{item}")                        
+                                shapes.set('fill-opacity', '0.5') # Set opacity
+                                
+                                # if the length of queries is 1 then the shape will be filled with
+                                # specified color otherwise a gradient will be added later
+                                if len(query) == 1:
+                                    shapes.set('fill', color)
+                            else:
+                                updated_title_text.append(item)  # Keep the original 
+                                # item if conditions are not met
+                            # Replace the title_text with updated_title_text
+                            title_element.text = str(updated_title_text)
+            # Executed when length of queries is more than 1
+            # Check if any color is not white
+            if colors and any(c != 'white' for c in colors):
+                # Create a new definitions element 
+                defs = ET.Element('defs')
+                defs = set_gradient(shapes.get('shape_id'), shapes, defs, colors)  # Set gradient
+                root.append(defs)  # Append definitions to root
+             
     return root
 
 ###################################################################################
@@ -72,7 +146,7 @@ def check_string_in_list(string_list, search_string):
 ######################################################################################
 
 
-def add_linear_gradient_to_svg(shape_id:list, predefined_colors:list=['yellow', 'blue', 'green','pink'], data=None):
+def add_linear_gradient_to_svg(shape_id:list, predefined_colors:list=[ 'blue'], data=None):
     # assign the data parameter to the root variable. 
     root = data
     
@@ -89,18 +163,18 @@ def add_linear_gradient_to_svg(shape_id:list, predefined_colors:list=['yellow', 
     else:
         no_of_groups = sum(isinstance(i, list) for i in shape_id)
         
-        
+    print(no_of_groups) 
     if no_of_groups ==0:
         return root 
     
     elif no_of_groups ==1:
-        groups = [shape_id]
+        groups = [[shape_id]]
     else:
         groups =shape_id
-    
+    #print(groups)
     for shapes in elements:
         for element in shapes:
-            title_text = []
+            
             if element.tag == 'title':
                 title_text = eval(element.text)
 
@@ -109,7 +183,8 @@ def add_linear_gradient_to_svg(shape_id:list, predefined_colors:list=['yellow', 
                 for sublist in groups:
                     
                     anno, color = check_anno(title_text, sublist)
-
+                    print(anno)
+                    print(color)
                     annos.append(anno)
                     colors.append(color)
                     
@@ -194,12 +269,13 @@ def set_gradient(anno:str,shape_element, defs,  colors:list=['yellow', 'red', 'b
     return defs     
 
 def check_anno(map_anno, anno_list):
-    for anno in anno_list:
-        if anno in ' '.join(map_anno):
-            return anno, "blue"
+    
+    #print(anno_list)
+    for key,value in anno_list[0].items():
+        for anno in value:
+            if anno in ' '.join(map_anno):
+                return anno, "blue"
     return "","white"
-
-
 
 
 # example annnotations for use case
