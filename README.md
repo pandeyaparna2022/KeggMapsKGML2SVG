@@ -151,8 +151,36 @@ Usecase examples are as follows:
 # Create KeggMap object
 svg_map = KeggPathwayMap("00400")
 # Create SVG
-svg_map.create_svg_map(color_all, 'green', path = 'path/to/desired/directory',output_name = 'desired_name')
+svg_map.create_svg_map(color_all, 'green', path = "./resources/")
 ```
 
+![colored all](./resources/ko_ec_rn_hsa00400.svg)
+
+```python
+# Create KeggMap object
+svg_map = KeggPathwayMap("00400")
+# Create SVG
+svg_map.create_svg_map(color_org,'hsa','green',path = "./resources/",output_name="org_specific_visualization")
+```
+
+![organism specific visualization](./resources/org_specific_visualization.svg)
+
+The color_function_base.py script includes additional coloring functions. For example, the following code illustrates how to color a pathway map using genome-specific annotation data, specifically the color_custom_annotations function from the same script.
+
+```python
+annotation_data = {'genome1': ['K13830', 'K01609', 'K14455', 'K24017'],
+ 'genome2': ['K01609', 'K13832', 'K14455', 'K13497'],
+ 'genome3': ['K13830', 'K24017', 'K14455', 'K01609'],
+ 'genome4': ['K17749', 'K01609', 'K14455', 'K24017']}
+
+# Create KeggMap object
+svg_map = KeggPathwayMap("00400")
+# Create SVG
+svg_map.create_svg_map(color_custom_annotations,annotation_data,'yellow',path = "./resources/",output_name="customized_coloring_multtiple_genome")
+```
+![Customized annotation coloring](./resources/customized_coloring_multtiple_genome.svg)
+
 > **Warning**
-> In the coloring functions provided in color_function_base.py script 
+> In the coloring functions provided in color_function_base.py script color can be specified in the additional arguments but it should always be the last additional argument prior to path and output name. This was a personal choice , users can create their own coloring functions as per their need.
+
+a.create_svg_map(color_org,'hsa','green',path = "./SVG_output/",output_name="org_specific_visualization")
