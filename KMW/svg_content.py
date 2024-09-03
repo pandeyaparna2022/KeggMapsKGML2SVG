@@ -20,7 +20,7 @@ def __create_namespace(base_image,title):
     # baseprofile, and xmlns attributes
 
     svg_tag = 'kegg-svg-' +  base_image.map_id[-5:]
-    doc = ET.Element('svg',title=f"{title}",id=f"{svg_tag}", width=f"{base_image.image_width}",
+    doc = ET.Element('svg',title=f"{title}",id=f"{svg_tag}", width=f"{str(int(base_image.image_width)+200)}",
                      height=f"{base_image.image_height}", version='1.1',
                      baseprofile=f"{BASE_PROFILE}",
                      xmlns="http://www.w3.org/2000/svg")
@@ -39,7 +39,7 @@ def __create_namespace(base_image,title):
 
 def create_svg_content(pathway,base_image,color_function, *args):
     # Assign the value of fill_color to the variable fill
-
+    
     pathway_components= pathway.pathway_components
 
     # Call the _create_namespace function with the pathway_id, width, and height
@@ -125,25 +125,117 @@ def create_svg_content(pathway,base_image,color_function, *args):
     # append the defs element to the doc XML element
     doc.append(defs)
 
-    # Create an XML element with the tag 'rect' and attributes 'x', 'y', 'fill',
-    # 'width', 'height', and 'style' set to the corresponding values
-    rect = ET.Element('rect', x="0", y="0", fill=f"url(#{ base_image.map_id[-5:]})",
-                      width=f"{ base_image.image_width}",
-                      height=f"{base_image.image_height}", style="pointer-events: none")
-    # Append the rect element to the doc XML element
-    doc.append(rect)
+    
     # Create an XML element with the tag 'defs' and attribute 'id' set to 'shape-color-defs'
     # and assign it to the defs variable
     defs = ET.Element('defs', id="shape-color-defs")
     # Append the defs element to the doc XML element
     doc.append(defs)
-
+    
     #  # Check if the color_function parameter is not None
     if color_function is not None:
         # # Call the color_function with the *args parameters and the data
         # parameter set to the doc variable
-        doc = color_function(*args,data=doc)
-
+        #print(args)
+        doc, colors = color_function(*args,data=doc)
+    # Create an XML element with the tag 'rect' and attributes 'x', 'y', 'fill',
+    # 'width', 'height', and 'style' set to the corresponding values
+  
+    rect = ET.Element('rect', x="0", y="0", fill=f"url(#{ base_image.map_id[-5:]})",
+                      width=f"{base_image.image_width}",
+                      height=f"{base_image.image_height}",style="pointer-events: none")
+    doc.append(rect)
+    if colors:
+        doc = define_legend(colors,base_image,doc, color_function)
+        
+        
+    # Append the rect element to the doc XML element
+    doc.append(rect)
     # Return the doc and data variables as a tuple
     return doc
-   
+ 
+def define_legend(colors,base_image,doc,color_func):
+    # Create the inner rectangle
+    print(color_func.__name__)
+    inner_rect1 = ET.Element('rect', 
+                        x=str(int(base_image.image_width)+10),
+                        y="0", 
+                        fill='white', 
+                        stroke=f"{STROKE}",# Set fill to none or any desired color
+                        width=f"{str(20)}",  # Adjust width as needed
+                        height=f"{str(20)}",style="pointer-events: none")
+    # Create the text element
+    text_element1 = ET.Element('text', 
+                  x=str(int(base_image.image_width) + 30),  # Position text to the right of the rectangles
+                  y="15",  # Center vertically relative to the rectangles
+                  fill="black",  # Set the text color
+                  style="font-size: 18px; pointer-events: none")  # Combined style attributes correctly
+    text_element1.text = "Absent"
+    doc.append(inner_rect1)
+    doc.append(text_element1)
+
+    y_coord_text= 35
+    y_coord_rect= 20
+    filtered_colors = [color for color in colors if color != 'white']    
+    print(filtered_colors)
+    filtered_colors = list(set(filtered_colors))
+    if len(filtered_colors)==1:
+        inner_rect2 = ET.Element('rect', 
+                            x=str(int(base_image.image_width)+10),
+                            y=str(y_coord_rect), 
+                            fill=filtered_colors[0], 
+                            stroke=f"{STROKE}",# Set fill to none or any desired color
+                            width=f"{str(20)}",  # Adjust width as needed
+                            height=f"{str(20)}",style="pointer-events: none")
+
+        
+        # Create the text element
+        text_element2 = ET.Element('text', 
+                      x=str(int(base_image.image_width) + 30),  # Position text to the right of the rectangles
+                      y=str(y_coord_text),  # Center vertically relative to the rectangles
+                      fill="black",  # Set the text color
+                      style="font-size: 18px; pointer-events: none")  # Combined style attributes correctly
+        text_element2.text = "Present"
+    
+           # Append the inner rectangle to the outer rectangle
+        doc.append(inner_rect2)
+        doc.append(text_element2)
+    elif len(filtered_colors) >1:
+        counter = 0
+        for color in filtered_colors:
+            
+            # Create the inner rectangle
+            inner_rect2 = ET.Element('rect', 
+                                x=str(int(base_image.image_width)+10),
+                                y=str(y_coord_rect), 
+                                fill=color, 
+                                stroke=f"{STROKE}",# Set fill to none or any desired color
+                                width=f"{str(20)}",  # Adjust width as needed
+                                height=f"{str(20)}",style="pointer-events: none")
+    
+            
+            # Create the text element
+            text_element2 = ET.Element('text', 
+                          x=str(int(base_image.image_width) + 30),  # Position text to the right of the rectangles
+                          y=str(y_coord_text),  # Center vertically relative to the rectangles
+                          fill="black",  # Set the text color
+                          style="font-size: 18px; pointer-events: none")  # Combined style attributes correctly
+            if color_func.__name__ == "color_custom_annotations":
+                print('yes')
+                counter=counter+1
+                text_element2.text = "org/genome: "+str(counter)
+                print(text_element2.text)
+            elif color_func.__name__ == "add_linear_gradient_groups":
+                print('yes')
+                counter=counter+25
+                text_element2.text = "%_org_in_group: <="+str(counter)
+                print(text_element2.text)
+        
+               # Append the inner rectangle to the outer rectangle
+            doc.append(inner_rect2)
+            doc.append(text_element2)
+            y_coord_text= y_coord_text+20
+            y_coord_rect= y_coord_rect+20
+    
+    return doc
+        

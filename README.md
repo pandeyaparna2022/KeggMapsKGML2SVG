@@ -54,20 +54,20 @@ names of available kgml files separated by '_' followed by the pathway map numbe
 For example:
 when map number is '00001', depending on which reference KGML files are available from KEGG the output name wille be one of the following:
 
-ko00001.svg  - if only ko KGML reference file is available
-ko_ec00001.svg - if only ko and ec KGML reference files are available
-ko_rn00001.svg - if only ko and rn KGML reference files are available
-ko_ec_rn00001.svg - if ko, ec and rn KGML reference file are available
+- ko00001.svg  - if only ko KGML reference file is available
+- ko_ec00001.svg - if only ko and ec KGML reference files are available
+- ko_rn00001.svg - if only ko and rn KGML reference files are available
+- ko_ec_rn00001.svg - if ko, ec and rn KGML reference file are available
 
 If organism prefix is provided with the map number this is also included in the output name.
 
 For example:
 when map number is 'hsa00001',depending on which reference KGML files are available from KEGG the output name wille be one of the following:
 
-ko_hsa00001.svg  - if only ko KGML reference file and organism-specific KGML files are available.
-ko_ec_hsa00001.svg - if only ko and ec KGML reference files and organism-specific KGML files are available.
-ko_rn_hsa00001.svg - if only ko and rn KGML reference files and organism-specific KGML files are available.
-ko_ec_rn_hsa00001.svg - if ko, ec and rn KGML reference file and organism-specific KGML files are  available.
+- ko_hsa00001.svg  - if only ko KGML reference file and organism-specific KGML files are available.
+- ko_ec_hsa00001.svg - if only ko and ec KGML reference files and organism-specific KGML files are available.
+- ko_rn_hsa00001.svg - if only ko and rn KGML reference files and organism-specific KGML files are available.
+- ko_ec_rn_hsa00001.svg - if ko, ec and rn KGML reference file and organism-specific KGML files are  available.
 
 Both the output directory and output name can be specified by the user as follows"
 ```python
@@ -158,7 +158,7 @@ svg_map.create_svg_map(color_all, 'green', path = "./resources/")
 
 ```python
 # Create KeggMap object
-svg_map = KeggPathwayMap("00400")
+svg_map = KeggPathwayMap("hsa00400")
 # Create SVG
 svg_map.create_svg_map(color_org,'hsa','green',path = "./resources/",output_name="org_specific_visualization")
 ```
@@ -197,5 +197,6 @@ svg_map.create_svg_map(color_custom_annotations,annotation_data,['yellow', 'red'
 ![Customized annotation coloring multiple colors](./resources/customized_coloring_multtiple_genome_multiple_colors.svg)
 
 > **Warning**
+
 > In the coloring functions defined within the color_function_base.py script, color specifications must be included as the final additional argument, preceding the path and output name. This design choice was made to enhance usability; however, users are encouraged to develop their own coloring functions to suit their specific requirements.
 
