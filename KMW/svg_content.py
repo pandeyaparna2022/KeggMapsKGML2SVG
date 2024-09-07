@@ -133,6 +133,7 @@ def create_svg_content(pathway,base_image,color_function, *args):
     doc.append(defs)
     
     #  # Check if the color_function parameter is not None
+    colors = None
     if color_function is not None:
         # # Call the color_function with the *args parameters and the data
         # parameter set to the doc variable
@@ -145,7 +146,7 @@ def create_svg_content(pathway,base_image,color_function, *args):
                       width=f"{base_image.image_width}",
                       height=f"{base_image.image_height}",style="pointer-events: none")
     doc.append(rect)
-    if colors:
+    if colors is not None:
         doc = define_legend(colors,base_image,doc, color_function)
         
         
@@ -156,7 +157,7 @@ def create_svg_content(pathway,base_image,color_function, *args):
  
 def define_legend(colors,base_image,doc,color_func):
     # Create the inner rectangle
-    print(color_func.__name__)
+    
     inner_rect1 = ET.Element('rect', 
                         x=str(int(base_image.image_width)+10),
                         y="0", 
@@ -177,7 +178,7 @@ def define_legend(colors,base_image,doc,color_func):
     y_coord_text= 35
     y_coord_rect= 20
     filtered_colors = [color for color in colors if color != 'white']    
-    print(filtered_colors)
+    
     filtered_colors = list(set(filtered_colors))
     if len(filtered_colors)==1:
         inner_rect2 = ET.Element('rect', 

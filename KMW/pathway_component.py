@@ -4,11 +4,13 @@ Created on Thu May 30 16:41:56 2024
 
 @author: aparn
 """
-
+from pathlib import Path
 from geometry import Geometry
+import os
 #from shape_annotation import ShapeAnnotation
 
 class PathwayComponent:
+    DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
    
     def __init__(self, entry:dict):
               
@@ -31,11 +33,24 @@ class PathwayComponent:
         
             
     
-    def is_equivalent(self, existing_pcs):
+    def is_equivalent(self, existing_pcs, file_name):
 
         entry_id = self.pathway_component_id
         if entry_id in existing_pcs and  existing_pcs[entry_id].pathway_component_geometry == self.pathway_component_geometry:
             return {entry_id: existing_pcs[entry_id]}
+        elif entry_id in existing_pcs and existing_pcs[entry_id].pathway_component_geometry != self.pathway_component_geometry:
+            # Check if the directory already exists
+            dir_name = "Inconsistent_KGML"
+            if not os.path.exists(dir_name):
+                # Create the directory
+                os.makedirs(dir_name)
+            file_path = Path(self.DATA_DIR) / Path(dir_name) / Path(f'{file_name}.txt')
+
+            with open(file_path, 'a') as file:
+                file.write(f"{entry_id}: {self.pathway_component_geometry}\n")  # Corrected the write format
+               
+            return {entry_id: existing_pcs[entry_id]}
+            
         else:
             return None
         

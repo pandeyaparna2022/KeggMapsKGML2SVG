@@ -17,6 +17,15 @@ class KgmlFile:
         self._in_memory = False
         self.map_id = map_id
         self._reload = reload
+        
+    @property
+    def file_name(self):
+        if self.file_type == 'orgs':
+            
+            return self.map_id
+        else:
+            
+            return self.file_type + f"{self.file_type}{self.map_id[-5:]}"
 
     @property
     def file_directory(self):
@@ -40,21 +49,12 @@ class KgmlFile:
             self._in_memory = True
         return self.__file_contents
             
-            
-            
-        #if not self.__is_file_cached():
-            
-            #self.__file_contents = self.__read_file()
-        
-        #return self.__file_contents
-    
-    
+
     @property
     def organism(self):
         if self.file_contents is not None:
             root_info = dict(self.file_contents.items())
-            
-            
+
             return root_info['org']
         else:
             return None

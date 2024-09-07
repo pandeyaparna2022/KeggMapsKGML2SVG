@@ -105,16 +105,19 @@ class Pathway:
                         "coords": graphics.get('coords')
                     }
                 }
-                
+
                 pathway_component = PathwayComponent(entry_data)
+
                 pathway_component.retrive_pathway_annotation_data()
-                equivalent_pathway_component = pathway_component.is_equivalent(merged_data)
+
+                equivalent_pathway_component = pathway_component.is_equivalent(merged_data, file.file_name)
                 if equivalent_pathway_component is not None:
                     updated_pathway_component = pathway_component.merge_pathway_components(equivalent_pathway_component)
                     merged_data.update(updated_pathway_component)
+                
                 else:
                     merged_data.update({pathway_component.pathway_component_id: pathway_component})
-                    
+
         pathway_components = []
        
         annotations = self.__provide_annotations(organism)

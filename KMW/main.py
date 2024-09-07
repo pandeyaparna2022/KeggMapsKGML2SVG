@@ -10,10 +10,11 @@ import os
 import random
 import multiprocessing
 import logging
-#import download_final
+#from download_data import download_rest_data, download_base_png_maps, download_kgml
 
 # Define DATA_DIR
-KEGG_MAP_WIZARD_DATA = '/path/to/desired/working/directory'
+#KEGG_MAP_WIZARD_DATA = 'C:\\Users\\aparn\\Desktop\\masters_thesis\\KeggMapsKGML2SVG'
+KEGG_MAP_WIZARD_DATA = 'C:\\Users\\aparn\\Desktop\\KeggMapsKGML2SVG\\KMW'
 
 # Add the path to the environment
 # For now. Need to change it so the user can dynamically set this
@@ -53,21 +54,13 @@ os.chdir(f'{DATA_DIR}')
 # assert the directory specified by DATA_DIR exists. If the directory does not 
 # exist, it raises an AssertionError with the specified error message.
 assert os.path.isdir(DATA_DIR), f'Directory not found: KEGG_MAP_WIZARD_DATA={DATA_DIR}'
-from download_data import download_rest_data, extract_all_map_ids,download_base_png_maps,download_kgml
+#from download_data import download_rest_data, extract_all_map_ids,download_base_png_maps,download_kgml
 # logs warning message providing details about the setup by including the values 
 # of KEGG_MAP_WIZARD_DATA and N_PARALLEL_DOWNLOADS for reference and 
 # troubleshooting purposes.
 logging.warning(f'Setup: KEGG_MAP_WIZARD_DATA={DATA_DIR}; KEGG_MAP_WIZARD_PARALLEL={N_PARALLEL_DOWNLOADS}')
 
-args_list = ['pathway', 'rn', 'compound', 'drug', 'glycan', 'dgroup', 'enzyme', 'br', 'rc','hsa']
 
-download_rest_data(args_list, False)
-map_ids = extract_all_map_ids()
-random_map_ids = random.sample(map_ids, 5)
-# For testing download only a subset of the map ids 
-random_map_ids = random.sample(map_ids, 5)
-download_base_png_maps(random_map_ids, False)
-download_kgml(random_map_ids, False)
-# To download all available maps and associated data uncomment the code below
-#download_base_png_maps(map_ids, False)
-#download_kgml(map_ids, False)
+from kegg_pathway_map import KeggPathwayMap
+from color_function_base import color_all, color_custom_annotations, color_org
+from color_functions_color_groups import add_linear_gradient_groups

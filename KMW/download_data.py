@@ -137,6 +137,10 @@ def extract_all_map_ids():
     #os.chdir(f'{DATA_DIR}/rest_data')
     # Check if the "pathway.txt" exists in the current directory.
     path = f'{DATA_DIR}/rest_data'
+    
+    if not os.path.exists(path):
+        # Create the directory
+        os.makedirs(path)
     if os.path.isfile(f'{path}/pathway.txt'):
         print("pathway.txt file exists. Extracting map ids from this file ...")
     # If the file does not exist, initiate the download of the 'pathway' file

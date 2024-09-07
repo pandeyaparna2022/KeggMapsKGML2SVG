@@ -196,9 +196,7 @@ svg_map.create_svg_map(color_custom_annotations,annotation_data,['yellow', 'red'
 
 ![Customized annotation coloring multiple colors](./resources/customized_coloring_multtiple_genome_multiple_colors.svg)
 
-> **Warning**
 
-> In the coloring functions defined within the color_function_base.py script, color specifications must be included as the final additional argument, preceding the path and output name. This design choice was made to enhance usability; however, users are encouraged to develop their own coloring functions to suit their specific requirements.
 
 In addition, the script color_functions_color_groups.py contains specialized functions designed to color map objects by grouping. It evaluates the percentage of genomes with specific annotations within each group and assigns colors to the map objects based on these percentages. In this approach, the pathway object is divided into multiple sections, corresponding to the number of groups, with each section colored appropriately.
 
@@ -225,3 +223,7 @@ svg_map.create_svg_map(add_linear_gradient_groups,annotation_data,path = "./SVG_
 ![color_by_group](./resources/color_by_group.svg)
 
 Isolating the color functions into a separate module enables users to modify or introduce custom coloring functions. This modularity allows for adjustments to the input format and the default color settings as needed.
+
+> **Warning**
+
+> In the coloring functions defined within the color_function_base.py script, color specifications must be included as the final additional argument, preceding the path and output name. This design choice was made to enhance usability; however, users are encouraged to develop their own coloring functions to suit their specific requirements.

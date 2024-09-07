@@ -11,8 +11,8 @@ from download_data import download_rest_data, download_base_png_maps, download_k
 from pathway import Pathway
 from base_image import BaseImage
 from svg_content import create_svg_content
-from color_function_base import color_all, color_custom_annotations, color_org,add_linear_gradient_to_svg
-from color_functions_linera_gradient import add_linear_gradient_to_svg1, add_linear_gradient_groups
+from color_function_base import color_all, color_custom_annotations, color_org
+from color_functions_color_groups import add_linear_gradient_groups
 #from annotation_setting_ap import ANNOTATION_SETTINGS
 DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
 
@@ -179,8 +179,8 @@ class KeggPathwayMap:
                 args_list.append(org)
                 for map_id in map_ids:
                     processed_map_ids.append(org + map_id)
-        print(processed_map_ids)
-        #download_base_png_maps(processed_map_ids, reload=reload)
+        
+        download_base_png_maps(processed_map_ids, reload=reload)
         download_kgml(processed_map_ids, reload=reload)
-        #download_rest_data(args_list, reload=reload)
+        download_rest_data(args_list, reload=reload)
         return None

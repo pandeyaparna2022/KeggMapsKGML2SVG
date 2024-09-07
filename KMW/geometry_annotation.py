@@ -10,6 +10,7 @@ from annotation_setting_ap import ANNOTATION_SETTINGS
 
 
 class GeometryAnnotation():
+    
     def __init__(self, organism):
         self.org = organism
          
@@ -31,15 +32,14 @@ class GeometryAnnotation():
                 str: The description for the given annotation or an empty string if not found.
 
         """
-        print(anno_name)   
-        print(anno_type)   
+     
         if anno_name in anno_type:
             
             result = anno_type[anno_name]
             result = result.replace("'", "")
             result = result.replace("<->", "(1->4)")
             result = result.replace("<=>", "(1->4)")
-            print (result)
+            
             return result
         else:
             return ""
@@ -68,7 +68,7 @@ class GeometryAnnotation():
         for query in queries:
              query_type = query['type'].lower()   
              query_name = query['name']
-             
+              
         # split string in query_name into multiple substrings based on whitespace characters.
         
              query_names = query_name.split()
@@ -79,7 +79,7 @@ class GeometryAnnotation():
                      anno_name=parts[0]
                  else:
                      anno_name=parts[1]
-                     
+                 
                  if query_type == 'compound' or query_type == 'reaction':
                      if parts[0] == "gl":
                          anno_type = "G"
@@ -127,7 +127,7 @@ class GeometryAnnotation():
                      result = result.replace("<=>", "(1->4)")
                  else:
                      result = ''
-                
+                 #print(result)
                  description = result
 
                  if anno_type == 'EC' or anno_type == "RC" or anno_type == "R":
@@ -136,7 +136,7 @@ class GeometryAnnotation():
                      title_info = name + ":" + description
                  else :
                      title_info = name + " (" + description.split(';')[0].strip() +")"
- 
+                 
                  title_descriptions.append(title_info)
                 
                  data_annotations.append(dict(type=anno_type, name=name,description=description
@@ -146,7 +146,7 @@ class GeometryAnnotation():
                                              data_annotation=data_annotations
                                              ))
         self.data_annotation = dictionary
-        
+     
         return self.data_annotation
     
 
