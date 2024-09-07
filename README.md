@@ -225,7 +225,7 @@ annotation_data = [[{'genome1': ['K13830', 'K01609', 'K14455', 'K24017'],
 # Create KeggMap object
 svg_map = KeggPathwayMap("hsa00400")
 # Create SVG
-svg_map.create_svg_map(add_linear_gradient_groups,annotation_data,path = "./SVG_output//",output_name="color_by_group")
+svg_map.create_svg_map(add_linear_gradient_groups,annotation_data,path = "./resources/",output_name="color_by_group")
 ```
 ![color_by_group](./resources/color_by_group.svg)
 
