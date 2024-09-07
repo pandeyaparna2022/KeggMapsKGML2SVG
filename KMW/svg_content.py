@@ -222,15 +222,15 @@ def define_legend(colors,base_image,doc,color_func):
                           fill="black",  # Set the text color
                           style="font-size: 18px; pointer-events: none")  # Combined style attributes correctly
             if color_func.__name__ == "color_custom_annotations":
-                print('yes')
+                
                 counter=counter+1
                 text_element2.text = "org/genome: "+str(counter)
-                print(text_element2.text)
+               
             elif color_func.__name__ == "add_linear_gradient_groups":
-                print('yes')
+                
                 counter=counter+25
                 text_element2.text = "%_org_in_group: <="+str(counter)
-                print(text_element2.text)
+                
         
                # Append the inner rectangle to the outer rectangle
             doc.append(inner_rect2)
