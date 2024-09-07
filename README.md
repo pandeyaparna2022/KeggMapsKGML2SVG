@@ -137,6 +137,13 @@ def color_org(org,*args, data):
 
 In the color_function_base.py script, additional functions for coloring are available. The functions presented above are shown to provide users with an intuitive understanding of how to navigate the hierarchical structure of SVG files and to create custom coloring functions tailored to their specific needs.
 
+Users need to import the modules with color function prior to their use as follows:
+
+```python
+from color_function_base import color_all, color_org, color_custom_annotations
+from color_functions_color_groups import add_linear_gradient_groups
+```
+
 The above mentioned functions can be called as follows:
 
 ```python
