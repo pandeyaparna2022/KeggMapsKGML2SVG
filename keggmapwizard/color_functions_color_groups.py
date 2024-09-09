@@ -73,7 +73,7 @@ def add_linear_gradient_groups(query:list,predefined_colors:list=['yellow', 'red
         for sublist in groups:
             group_count =group_count+1
             updated_title_text, color = check_anno(title_text, sublist,group_count)   
-            #print(color)
+           
             updated_title_text = remove_duplicate_groups(updated_title_text)
             colors.append(color) 
             title_element.text = str(updated_title_text)
