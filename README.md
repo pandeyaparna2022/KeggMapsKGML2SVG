@@ -9,7 +9,6 @@ browsers.
 I included a simple JavaScript library that enables coloring the maps. It requires
 
 - jQuery
-- [chroma.js](https://gka.github.io/chroma.js/) to calculate color gradients
 - [html2canvas](https://html2canvas.hertzen.com/) to render the SVGs as PNGs
 
 ## Python
@@ -234,3 +233,7 @@ Isolating the color functions into a separate module enables users to modify or 
 > **Warning**
 
 > In the coloring functions defined within the color_function_base.py script, color specifications must be included as the final additional argument, preceding the path and output name. This design choice was made to enhance usability; however, users are encouraged to develop their own coloring functions to suit their specific requirements.
+
+## Testing and Coloring SVGs in a browser
+To test the maps, run a simple http server in the kegg_map_wizard: python -m http.server 8000
+Then open http://localhost:8000/html/html/display_SVG.html
