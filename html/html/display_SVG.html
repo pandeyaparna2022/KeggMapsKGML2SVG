@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load SVG Example</title>
+    <link rel="stylesheet" href="./../style.css">
+    <!-- jQuery -->
+    <script src="../js_lib/jquery/jquery.min.js""></script>
+    <!-- Popper and Bootstrap are used for tooltips only -->
+    <script src="../js_lib/popper/popper.min.js"></script>
+    <script src="../js_lib/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../js_lib/bootstrap/bootstrap.min.css">
+    <!-- click event/context menu -->
+    <script src="./../js_lib/clickevent/click.js"></script>  
+    <!-- html2canvas to export svgs as pngs -->
+    <script src="./../js_lib/html2canvas/html2canvas.min.js"></script>
+    <!-- save data -->
+    <script src="./../js_lib/save/save_data.js"></script> 
+    <!-- color functions -->
+    <script src="./../js_lib/color/color.js"></script> 
+</head>
+<header>
+    <section class="input-group">
+        <div class="input-group-1">
+            <span class="input-group-text">Scan for maps here:</span>
+        </div>
+        <input type="text" id="data-dir" class="form-control" value="../../SVG_output/">
+        <div class="input-group-1">
+            
+        </div>
+    </section>
+
+    <div class='br'></div>
+    <section class="input-group">
+        <div class="input-group-1">
+        <span class="input-group-text">SVG id:</span>
+        </div>
+        <input type="text" id="svg-file-input" class="form-control" placeholder="Enter SVG file name (e.g., Figure12.svg)">
+        <button class="btn btn-primary" type="button" id="load-svg-button" >Load SVG</button>
+        
+    </section>
+    <div class='br'></div>
+    
+    <div id="head-buttons">
+        <button type="button" class="btn btn-primary" onclick="loadPrevMap()">Previous Map</button>
+        <button type="button" class="btn btn-success" onclick="colorAll()">Color Everything </button>
+        <button id="showInputBtnOrgs" type="button" class="btn btn-info" onclick="showInputField('colorOrg')">Color organism specific object</button>
+        <button id="showInputBtnArgs" type="button" class="btn btn-warning" onclick="showInputField('colorCustomAnnotations')">Color cunstom annotations</button>
+        <button type="button" class="btn btn-warning" onclick="colorizeRandomGroupsOfOrganisms()">Color custom groups</button>
+        <button type="button" class="btn btn-danger" onclick="resetMap(document.getElementById('custom-kegg').firstChild)">Reset Map</button>
+        <button type="button" class="btn btn-light" onclick="savePng(document.getElementById('svg-container').querySelector('svg'))">Save as PNG</button>
+        <button type="button" class="btn btn-light" onclick="saveSvg(document.getElementById('svg-container').querySelector('svg'))">Save as SVG</button>
+        <button type="button" class="btn btn-primary" onclick="loadNextMap()">Next Map</button>
+    </div>
+
+    <br>
+
+</header>
+
+<body>
+    <div id="inputContainer1" style="display: none;>
+    <section class="input-group">
+        <div class="input-group-1">
+        <span class="input-group-text">Annotations:</span>
+        </div>
+        <input type="text" id="annotation_org" class="form-control" placeholder="Enter organism prefix (example hsa for humans)">
+        <button id="submitBtn" class="btn btn-primary" type="button" onclick="colorArg(colorOrg)">Submit</button>
+        
+    </section>
+
+    
+    </div>
+
+
+    <div id="inputContainer2" style="display: none;>
+        <section class="input-group">
+            <div class="input-group-1">
+            <span class="input-group-text">Annotations:</span>
+            </div>
+            <input type="text" id="annotation_custom" class="form-control" placeholder="Enter genome annotation in a dictionary format (example [ {'genome1': ['K13830', 'K01609'],'genome2': ['K13830', 'K01609'],... }])">
+            <button id="submitBtn" class="btn btn-primary" type="button" onclick="colorArg(colorCustomAnnotations)">Submit</button>
+            
+        </section>
+    
+        
+        </div>
+
+    <div>
+        <!-- Container for the SVG -->
+        <div id="svg-container"></div> 
+    </div>
+
+
+    <script>
+        document.getElementById('load-svg-button').addEventListener('click', function() {
+            // Get the file name from the input
+            const fileName = document.getElementById('svg-file-input').value;
+            const relativePath = `../../SVG_output/${fileName}`; // Construct the relative path
+    
+            // Use fetch to load the SVG file
+            fetch(relativePath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.text(); // Parse the response as text
+                })
+                .then(svgData => {
+                    // Display the loaded SVG in the container
+                    document.getElementById('svg-container').innerHTML = svgData;
+                    addOnClickToShapes(); // Call your function if needed
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        });
+
+        function showInputField(funName) {
+            if (funName === 'colorOrg') {
+                document.getElementById('inputContainer1').style.display = 'block';
+                document.getElementById('inputContainer2').style.display = 'none'; // Hide the other input container
+                console.log(funName);
+            } else if (funName === 'colorCustomAnnotations') {
+                document.getElementById('inputContainer2').style.display = 'block';
+                document.getElementById('inputContainer1').style.display = 'none'; // Hide the other input container
+                console.log(funName);
+            }
+        }
+
+        function colorArg(funName) {
+            console.log(funName.name)
+
+            let inputField; // Declare inputField outside the if-else blocks
+            if (funName.name === 'colorOrg') {
+                inputField = document.getElementById('annotation_org');
+            } else if (funName.name === 'colorCustomAnnotations') {
+                inputField = document.getElementById('annotation_custom');
+            }
+
+
+
+
+            // Get the value from the input field
+            //const inputField = document.getElementById('annotation');
+            //const args = inputField.value.split(',').map(arg => arg.trim()); // Split by comma and trim whitespace
+            const args = [inputField.value.trim()]; // Get the input value and trim whitespace
+            console.log(args);
+
+            // Call the ChangeShapeColor function with the input arguments
+            color  = funName(args);
+            
+            if (color) {
+                console.log("yes")
+                defineLegend(color,funName)
+            }
+        }
+
+
+
+</script>
+
+</body>
+</html>

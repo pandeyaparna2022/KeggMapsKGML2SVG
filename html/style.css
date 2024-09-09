@@ -1,0 +1,104 @@
+
+#headerButtons {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    background-color:white;
+    font-family:sans-serif;
+    flex-grow: 2;
+    margin: 2px;
+    padding: 0px;
+    border-radius: 50%;
+    color:white;
+}
+
+.input-group{
+    display: flex;
+    align-items: center;
+    background: rgb(218, 218, 216);
+    font-weight: 400;
+    line-height: 1.5;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    white-space: nowrap;
+    justify-content: space-evenly;
+    text-align: center;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    height: 33px;    
+}
+
+
+.form-control{    
+    align-items: center;
+    flex-grow: 1;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    height: 36px;
+    padding: 1px;
+}
+
+/* style for btn class */
+.btn {
+    padding-left: 10px; 
+    padding-right: 10px;
+    color: #FFFFFF;
+    height: 38px;
+    font-family:sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+/* Blue color for primary buttons */
+.btn-primary { background-color:  #00A4BD;}
+
+/* Unique colors for other buttons */
+.btn-success { background-color: #28a745;  }
+.btn-info { background-color: #17a2b8;  }
+.btn-warning { background-color: #ffc107; color:white; }
+.btn-danger { background-color: #dc3545; }
+.btn-light { background-color: #cd0ea7; }
+
+
+.br {
+    height: 15px;
+}
+
+#map-menu {
+    background: white;
+    border: 4px solid black;
+    max-width: 50%;
+    height: auto;
+    white-space: normal:;
+    overflow: scroll;
+}
+
+.dropdown-header {
+    white-space: unset;
+}
+
+.dropdown-header.json {
+    padding-top: 0;
+    white-space: pre-wrap;
+}
+
+.dropdown-header.context-menu-header {
+    padding-bottom: 0;
+}
+
+#custom-kegg {
+    text-align: center
+}
+
+#inputContainer1 {
+    display: none; /* Hide input field initially */
+    margin-top: 10px;
+}
+
+#inputContainer2 {
+    display: none; /* Hide input field initially */
+    margin-top: 10px;
+}
