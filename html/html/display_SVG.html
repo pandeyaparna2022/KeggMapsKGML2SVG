@@ -42,15 +42,13 @@
     <div class='br'></div>
     
     <div id="head-buttons">
-        <button type="button" class="btn btn-primary" onclick="loadPrevMap()">Previous Map</button>
+        
         <button type="button" class="btn btn-success" onclick="colorAll()">Color Everything </button>
         <button id="showInputBtnOrgs" type="button" class="btn btn-info" onclick="showInputField('colorOrg')">Color organism specific object</button>
         <button id="showInputBtnArgs" type="button" class="btn btn-warning" onclick="showInputField('colorCustomAnnotations')">Color cunstom annotations</button>
-        <button type="button" class="btn btn-warning" onclick="colorizeRandomGroupsOfOrganisms()">Color custom groups</button>
-        <button type="button" class="btn btn-danger" onclick="resetMap(document.getElementById('custom-kegg').firstChild)">Reset Map</button>
         <button type="button" class="btn btn-light" onclick="savePng(document.getElementById('svg-container').querySelector('svg'))">Save as PNG</button>
         <button type="button" class="btn btn-light" onclick="saveSvg(document.getElementById('svg-container').querySelector('svg'))">Save as SVG</button>
-        <button type="button" class="btn btn-primary" onclick="loadNextMap()">Next Map</button>
+        
     </div>
 
     <br>
