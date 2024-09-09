@@ -230,8 +230,7 @@ def define_legend(colors,base_image,doc,color_func):
                 
                 counter=counter+25
                 text_element2.text = "%_org_in_group: <="+str(counter)
-                
-        
+
                # Append the inner rectangle to the outer rectangle
             doc.append(inner_rect2)
             doc.append(text_element2)
