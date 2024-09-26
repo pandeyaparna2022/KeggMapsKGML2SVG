@@ -32,10 +32,10 @@ os.environ['KEGG_MAP_WIZARD_DATA'] = '/path/to/desired/download/location'
 In a Python 3.9 console, type:
 
 ```python
-from kegg_map_wizard import KeggMapWizard, KeggMap, KeggShape, KeggAnnotation, ColorMaker
+from keggmapwizard.kegg_pathway_map import KeggPathwayMap, download_kegg_resources
 
-KeggMapWizard.download_kegg_resources()  # this will download all available KEGG maps and other required resources
-KeggMapWizard.download_kegg_resources(map_ids=['00400'], org=['gma','mus'], reload=True) # this will only download this KEGG resources for the specified organims and maps
+download_kegg_resources()  # this will download all available KEGG maps and other required resources
+download_kegg_resources(map_ids=['00400'], orgs=['gma','mus'], reload=True) # this will only download this KEGG resources for the specified organims and maps
 
 
 # Create KeggMap object

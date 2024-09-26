@@ -3,21 +3,6 @@ class Geometry:
         self.geometry_coords = geometry_coords
         self.geometry_shape = geometry_shape
 
-    def __gometry_object(data):
-        if data['graphics']['type'] == 'line':
-            return Line.geometry_details(data)
-        elif data['graphics']['type'] == 'circle':
-            return Circle.geometry_details(data)
-        elif data['graphics']['type'] in ['rectangle', 'roundrectangle']:
-            return Rectangle.geometry_details(data)
-        else:
-            return None
-
-    @classmethod
-    def geometry_info(cls, data):
-        geometry_object = cls.__gometry_object(data)
-        return cls(geometry_object.geometry_coords, geometry_object.geometry_shape)
-
 
 class Line(Geometry):
     def __init__(self, geometry_coords: dict, geometry_shape: str):
@@ -33,7 +18,7 @@ class Line(Geometry):
         # Group the coordinates into pairs to create points
         points = [(coords[l * 2], coords[l * 2 + 1]) for l in range(len(coords) // 2)]
         # Create a shape_path string in the format 'M x1,y1 L x2,y2 L x3,y3 ...'
-        # eg: [(1, 2), (3, 4), (5, 6)] => 'M 1,2 L 3,4 L 5,6'.    
+        # eg: [(1, 2), (3, 4), (5, 6)] => 'M 1,2 L 3,4 L 5,6'.
         d = 'M ' + ' L '.join(f'{x},{y}' for x, y in points)
 
         geometry = {
@@ -99,3 +84,14 @@ class Rectangle(Geometry):
             'ry': ry
         }
         return cls(geometry, geometry_shape)
+
+
+def geometry_factory(data):
+    if data['graphics']['type'] == 'line':
+        return Line.geometry_details(data)
+    elif data['graphics']['type'] == 'circle':
+        return Circle.geometry_details(data)
+    elif data['graphics']['type'] in ['rectangle', 'roundrectangle']:
+        return Rectangle.geometry_details(data)
+    else:
+        return None

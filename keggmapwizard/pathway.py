@@ -1,14 +1,13 @@
 import os
-from kegg_file import KgmlFile
-from pathway_component import PathwayComponent
-from geometry_annotation import GeometryAnnotation
-from annotation_setting_ap import ANNOTATION_SETTINGS
 from pathlib import Path
+from .utils import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from .kegg_file import KgmlFile
+from .pathway_component import PathwayComponent
+from .geometry_annotation import GeometryAnnotation
+from .annotation_settings import ANNOTATION_SETTINGS
 
 
 class Pathway:
-    DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
-
     def __init__(self, map_id: str, file_types: list):
         self.map_id = map_id
         self.__kegg_files = []
@@ -62,13 +61,13 @@ class Pathway:
         kegg_files = []
         kegg_file_types = [element for element in self._file_types if element != 'orgs']
         for file_type in kegg_file_types:
-            kegg_files.append(KgmlFile(self.map_id[-5:], file_type, self.DATA_DIR))
+            kegg_files.append(KgmlFile(self.map_id[-5:], file_type, DATA_DIR))
         return kegg_files
 
     def __create_org_file(self):
         org_file = []
         if 'orgs' in self._file_types:
-            org_file.append(KgmlFile(self.map_id, 'orgs', self.DATA_DIR))
+            org_file.append(KgmlFile(self.map_id, 'orgs', DATA_DIR))
         return org_file
 
     def __create_pathway_components(self):
@@ -131,7 +130,7 @@ class Pathway:
             if rest_file == 'org':
                 rest_file = organism
             if rest_file != '':
-                file_path = self.DATA_DIR / Path('rest_data') / Path(f"{rest_file}.txt")
+                file_path = DATA_DIR / Path('rest_data') / Path(f"{rest_file}.txt")
             # Open the rest file and store it in a variable with the same name as the key
             try:
                 with open(file_path, 'r') as file:

@@ -1,4 +1,23 @@
-from annotation_setting_ap import ANNOTATION_SETTINGS
+from .annotation_settings import ANNOTATION_SETTINGS
+
+compound_reaction_mapping = {
+    "gl": "G",
+    "dr": "D",
+    "cpd": "C",
+    "DG": "DG",
+    "rn": "R",
+    "rc": "RC",
+}
+
+# Define mappings for other query types
+query_type_mapping = {
+    'enzyme': 'EC',
+    'ortholog': 'K',
+    'brite': 'BR',
+    'group': 'GR',
+    'other': 'O',
+    'gene': 'Gene',
+}
 
 
 class GeometryAnnotation():
@@ -66,34 +85,13 @@ class GeometryAnnotation():
                 else:
                     anno_name = parts[1]
 
-                if query_type == 'compound' or query_type == 'reaction':
-                    if parts[0] == "gl":
-                        anno_type = "G"
-                    if parts[0] == "dr":
-                        anno_type = "D"
-                    if parts[0] == "cpd":
-                        anno_type = "C"
-                    if parts[0] == "DG":
-                        anno_type = "DG"
-                    if parts[0] == "rn":
-                        anno_type = "R"
-                    if parts[0] == "rc":
-                        anno_type = "RC"
-                elif query_type == 'enzyme':
-                    anno_type = "EC"
-                elif query_type == 'ortholog':
-                    anno_type = "K"
-                elif query_type == 'brite':
-                    anno_type = "BR"
+                if query_type in ('compound', 'reaction'):
+                    anno_type = compound_reaction_mapping[parts[0]]
                 elif query_type == 'map':
-                    anno_type = "MAP"
+                    anno_type = 'MAP'
                     anno_name = 'map' + anno_name[-5:]
-                elif query_type == 'group':
-                    anno_type = "GR"
-                elif query_type == 'other':
-                    anno_type = "O"
-                elif query_type == 'gene':
-                    anno_type = 'Gene'
+                else:
+                    anno_type = query_type_mapping[query_type]
 
                 html_class = ANNOTATION_SETTINGS[anno_type]['html_class']
                 html_classes.append(html_class)

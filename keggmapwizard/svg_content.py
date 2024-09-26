@@ -14,7 +14,7 @@ def __create_namespace(base_image, title):
     # baseprofile, and xmlns attributes
 
     svg_tag = 'kegg-svg-' + base_image.map_id[-5:]
-    doc = ET.Element('svg', title=f"{title}", id=f"{svg_tag}", width=f"{str(int(base_image.image_width) + 200)}",
+    doc = ET.Element('svg', title=f"{title}", id=f"{svg_tag}", width=f"{str(int(base_image.image_width))}",
                      height=f"{base_image.image_height}", version='1.1',
                      baseprofile=f"{BASE_PROFILE}",
                      xmlns="http://www.w3.org/2000/svg")

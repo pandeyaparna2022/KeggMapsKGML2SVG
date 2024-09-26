@@ -1,15 +1,11 @@
 import os
 from xml.etree import ElementTree as ET
 from pathlib import Path
-from download_data import download_rest_data, download_base_png_maps, download_kgml, check_input, extract_all_map_ids
-from pathway import Pathway
-from base_image import BaseImage
-from svg_content import create_svg_content
-from color_function_base import color_all, color_custom_annotations, color_org
-from color_functions_color_groups import add_linear_gradient_groups
-
-# from annotation_setting_ap import ANNOTATION_SETTINGS
-DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
+from .utils import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from .download_data import download_rest_data, download_base_png_maps, download_kgml, check_input, extract_all_map_ids
+from .pathway import Pathway
+from .base_image import BaseImage
+from .svg_content import create_svg_content
 
 
 class KeggPathwayMap:
@@ -17,8 +13,6 @@ class KeggPathwayMap:
     Class to create a KeggPathwayMap object
             
     """
-    DATA_DIR = DATA_DIR
-
     def __init__(self, map_id, reload=False):
         print(f"Initializing an instance of {self.__class__.__name__}")
         print("Retreiving/downloading required resources.")
@@ -52,7 +46,7 @@ class KeggPathwayMap:
     def organism(self):
         if self._organism is None:
             if self.map_id[:-5] not in ['ko', 'ec', 'rn', '']:
-                file_path = self.DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
+                file_path = DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
                 if os.path.exists(file_path):
                     organism = self.map_id[:-5]
                 else:
@@ -85,7 +79,7 @@ class KeggPathwayMap:
             download_base_png_maps([self.map_id], self._reload)
 
             if self.organism is not None:
-                kgml_file_path = self.DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
+                kgml_file_path = DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
                 if os.path.exists(kgml_file_path):
                     rest_file = self.organism
                     download_rest_data([rest_file], self._reload)
@@ -95,12 +89,12 @@ class KeggPathwayMap:
         base_file_types = ['ko', 'ec', 'rn']
 
         for file_type in base_file_types:
-            file_path = self.DATA_DIR / Path("kgml_data") / Path(file_type) / Path(f"{file_type}{self.map_id[-5:]}.xml")
+            file_path = DATA_DIR / Path("kgml_data") / Path(file_type) / Path(f"{file_type}{self.map_id[-5:]}.xml")
             if os.path.exists(file_path):
                 existing_file_types.append(file_type)
 
         if self.organism is not None:
-            kgml_file_path = self.DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
+            kgml_file_path = DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
             if os.path.exists(kgml_file_path):
                 existing_file_types.append('orgs')
         return existing_file_types
@@ -121,7 +115,7 @@ class KeggPathwayMap:
 
     def __base_image(self):
         base_image = None
-        image_path = self.DATA_DIR / Path("maps_png") / Path(f"map{self.map_id[-5:]}.png.json")
+        image_path = DATA_DIR / Path("maps_png") / Path(f"map{self.map_id[-5:]}.png.json")
         if os.path.exists(image_path):
             base_image = BaseImage.from_png(self.map_id, image_path)
         return base_image
@@ -135,12 +129,12 @@ class KeggPathwayMap:
             svg_pathway_object = create_svg_content(self.pathway, self.base_image, color_function, *args)
             # Create directory for SVG outputs
             if path is None:
-                out_dir = self.DATA_DIR / Path("SVG_output")
+                out_dir = DATA_DIR / Path("SVG_output")
             else:
                 if os.path.exists(Path(path)):
                     out_dir = Path(path) / Path("SVG_output")
                 else:
-                    out_dir = Path(self.DATA_DIR) / Path("SVG_output")
+                    out_dir = Path(DATA_DIR) / Path("SVG_output")
                     print(
                         "The given path for the output does not exist. Therefore, the files will be stored in the default output directory:")
                     print(out_dir)
@@ -153,29 +147,39 @@ class KeggPathwayMap:
                 file.write(b'\n')
                 file.write(b'\n')
                 file.write(ET.tostring(svg_pathway_object))
+            print(f'wrote {file_path}')
 
         return svg_pathway_object
 
-    @classmethod
-    def download_kegg_resources(cls, map_ids: [str] = None, orgs: [str] = None, reload=False):
 
-        args_list = ['pathway', 'br', 'md', 'ko', 'gn', 'compound', 'glycan', 'rn', 'rc', 'enzyme', 'ne', 'variant',
-                     'ds', 'drug', 'dgroup']
+def download_kegg_resources(map_ids: [str] = None, orgs: [str] = None, reload=False):
+    """
+    Downloads various KEGG resources based on provided map IDs and organisms.
 
-        if map_ids is None:
-            map_ids = extract_all_map_ids()
+    Args:
+        map_ids (list of str, optional): List of map identifiers. Defaults to extracting all map IDs if None.
+        orgs (list of str, optional): List of organisms. If provided, resources will also be downloaded for
+                                      each organism combined with map IDs.
+        reload (bool, optional): If True, forces re-download of all resources even if they are already present locally.
+                                 Defaults to False.
+    """
+    args_list = ['pathway', 'br', 'md', 'ko', 'gn', 'compound', 'glycan', 'rn', 'rc', 'enzyme', 'ne', 'variant',
+                 'ds', 'drug', 'dgroup']
 
-        if orgs is None:
-            processed_map_ids = map_ids
-        else:
+    if map_ids is None:
+        map_ids = extract_all_map_ids()
 
-            # Initialize an empty list to store the results
-            processed_map_ids = []
-            for org in orgs:
-                args_list.append(org)
-                for map_id in map_ids:
-                    processed_map_ids.append(org + map_id)
+    if orgs is None:
+        processed_map_ids = map_ids
+    else:
 
-        download_base_png_maps(processed_map_ids, reload=reload)
-        download_kgml(processed_map_ids, reload=reload)
-        download_rest_data(args_list, reload=reload)
+        # Initialize an empty list to store the results
+        processed_map_ids = []
+        for org in orgs:
+            args_list.append(org)
+            for map_id in map_ids:
+                processed_map_ids.append(org + map_id)
+
+    download_base_png_maps(processed_map_ids, reload=reload)
+    download_kgml(processed_map_ids, reload=reload)
+    download_rest_data(args_list, reload=reload)

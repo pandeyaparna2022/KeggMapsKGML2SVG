@@ -1,16 +1,15 @@
-from pathlib import Path
-from geometry import Geometry
 import os
+from pathlib import Path
+from .utils import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from .geometry import geometry_factory
 
 
 class PathwayComponent:
-    DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
-
     def __init__(self, entry: dict):
 
         self.entry = entry
         self.pathway_component_id = entry['id']
-        self.__pc_entry_shape_object = Geometry.geometry_info(entry)
+        self.__pc_entry_shape_object = geometry_factory(entry)
         self.pathway_component_geometry = self.__pc_entry_shape_object.geometry_coords
         self.pathway_component_geometry_shape = self.__pc_entry_shape_object.geometry_shape
 
@@ -37,7 +36,7 @@ class PathwayComponent:
             if not os.path.exists(dir_name):
                 # Create the directory
                 os.makedirs(dir_name)
-            file_path = Path(self.DATA_DIR) / Path(dir_name) / Path(f'{file_name}.txt')
+            file_path = Path(DATA_DIR) / Path(dir_name) / Path(f'{file_name}.txt')
 
             with open(file_path, 'a') as file:
                 file.write(f"{entry_id}: {self.pathway_component_geometry}\n")  # Corrected the write format

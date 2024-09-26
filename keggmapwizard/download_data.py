@@ -4,82 +4,77 @@ from io import BytesIO
 import re
 import time
 import json
-import requests
+import urllib.request
+import urllib.error
 from PIL import Image
-
-DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
+from .utils import KEGG_MAP_WIZARD_DATA as DATA_DIR
 
 
 # todo: INCORPORATE PARALLEL PROCESSING
 def download_data(url: str, arg: str, path: str, verbose: bool = True):
-    """handle the downloading of data based on a url and an argument.
-
-            Args:
-                url: The web address for the argument/query used to download the data.
-                arg (str): argument/query to be downloaded
-                verbose (bool): A boolean flag indicating whether to display
-                verbose output for ongoing operation
-            Returns:
-                None
     """
-    # try block for exception handeling of potential HTTP errors
-    try:
-        # make a request with the current argument
-        response = requests.get(url)  #
-        # raise an HTTPError if the HTTP request returned an unsuccessful status code
-        response.raise_for_status()  #
-        # If the request is successful, you can proceed with using the response
-        if verbose:
-            print("downloading", arg)
-        # Define the pattern for kgml url
-        pattern1 = r'^http://rest\.kegg\.jp/get/[^/]+/kgml$'
-        pattern2 = r'https://www\.genome\.jp/kegg/pathway/map/map\d+\.png'
-        # define filename for the download i.e., argument with a '.txt' or '.xml' extension
-        if re.match(pattern1, url):
-            # if the url matches the pattern add.xml extention to the filename
-            file_name = arg + '.xml'
-            # save the response in the indicated file
-            with open(f'{path}/{file_name}', 'w') as file:
-                file.write(response.text)
-        elif re.match(pattern2, url):
-            # if the url matches the pattern2 add .png extention to the filename
-            file_name = "map" + arg + '.png'
-            # save the response in the indicated file
-            # Save the image as map_id.png
-            with open(f'{path}/{file_name}', 'wb') as file:
-                file.write(response.content)
-            # Call the encode_png function to modify the saved image
-            # encode_png(f'{path}/{"map"+arg + ".png"}')
-        else:
-            # else add .txt extention to the file name
-            file_name = arg + '.txt'
-            # save the response in the indicated file
-            with open(f'{path}/{file_name}', 'w') as file:
-                file.write(response.text)
+    Handle the downloading of data based on a URL and an argument.
 
-    # Handle HTTPError
-    except requests.exceptions.HTTPError as error:
-        # if request results in HTTPError with a status code of 400 (Bad
-        # Request error),handle it here
-        if error.response.status_code == 400:
-            # log the non-existent query/argument to a file named 'bad_requests.txt'
-            # and optionally display a message if verbose is True.
-            with open(f'{path}/bad_requests.txt', 'a') as file:
-                file.write(arg + '\n')
+    Args:
+        url (str): The web address for the argument/query used to download the data.
+        arg (str): Argument/query to be downloaded.
+        path (str): Path to save the downloaded file.
+        verbose (bool): A boolean flag indicating whether to display verbose output.
+
+    Returns:
+        None
+    """
+
+    def save_file(content, file_name, mode='w'):
+        """Helper function to save content to a file."""
+        with open(f'{path}/{file_name}', mode) as file:
+            file.write(content)
+        if verbose:
+            print(f"Saved {file_name}")
+
+    def log_bad_request():
+        """Helper function to log bad requests."""
+        save_file(arg + '\n', 'bad_requests.txt', mode='a')
+        if verbose:
+            print(f"Data non-existent for query: {arg}. Status code: {error_code}")
+
+    try:
+        # Make the request
+        with urllib.request.urlopen(url) as response:
+            data = response.read()
+
             if verbose:
-                print(f'data Non-existent for query : {arg}. Status code: {error.response.status_code}')
-        elif error.response.status_code == 404:
-            # log the non-existent webpage to a file named 'bad_requests.txt'
-            # and optionally display a message if verbose is True.
-            with open(f'{path}/bad_requests.txt', 'a') as file:
-                file.write(arg + '\n')
-            if verbose:
-                print(f'data Non-existent for query : {arg}. Status code: {error.response.status_code}')
-        # If the request results in any other HTTP errors optionally display
-        # a message if verbose is True.
+                print(f"Downloading {arg}...")
+
+            # Define URL patterns for kgml and PNG file types
+            pattern1 = r'^http://rest\.kegg\.jp/get/[^/]+/kgml$'
+            pattern2 = r'https://www\.genome\.jp/kegg/pathway/map/map\d+\.png'
+
+            # Determine file type and extension based on URL pattern
+            if re.match(pattern1, url):
+                file_name = f'{arg}.xml'
+                save_file(data.decode('utf-8'), file_name)
+            elif re.match(pattern2, url):
+                file_name = f'map{arg}.png'
+                save_file(data, file_name, mode='wb')
+                # Uncomment if encode_png is needed
+                # encode_png(f'{path}/{file_name}')
+            else:
+                file_name = f'{arg}.txt'
+                save_file(data.decode('utf-8'), file_name)
+
+    except urllib.error.HTTPError as error:
+        # Handle HTTP error codes (e.g., 400, 404)
+        error_code = error.code
+        if error_code in (400, 404):
+            log_bad_request()
         else:
             if verbose:
-                print(f'An error occurred for query : {arg}. Status code: {error.response.status_code}')
+                print(f"An error occurred for query: {arg}. Status code: {error_code}")
+    except urllib.error.URLError as error:
+        # Handle other URL errors
+        if verbose:
+            print(f"Failed to reach server for query: {arg}. Reason: {error.reason}")
 
 
 def download_rest_data(
@@ -187,19 +182,22 @@ def encode_png(png_path: str) -> None:
         pixdata = img.load()
         # Get the width and height of the image
         width, height = img.size
+
         # Iterate through each pixel of the image
         for y_coord in range(height):
             for x_coord in range(width):
-                # Check if the pixel color is white with full opacity
-                if pixdata[x_coord, y_coord] == (255, 255, 255, 255):
-                    # If so, make it transparent
-                    pixdata[x_coord, y_coord] = (255, 255, 255, 0)
+                r, b, g, a = pixdata[x_coord, y_coord]
+                assert r == b == g, f'{(r,g,b,a)=}'
+                assert a == 255, f'{(r,g,b,a)=}'
+                pixdata[x_coord, y_coord] = (0, 0, 0, 255 - r)  # All pixels are black with variable transparency
+
         # Create a buffer to save the modified image as a PNG
         buffer = BytesIO()
         # Save the modified image to the buffer in PNG format
         img.save(buffer, 'PNG')
         # Close the image file
         img.close()
+        print('xxxxxxxxxxxxx', width)
         # encoded_image=base64.b64encode(buffer.getvalue()).decode()
         # Create a JSON object containing the width, height, and the base64 encoded
         # string of the modified image.

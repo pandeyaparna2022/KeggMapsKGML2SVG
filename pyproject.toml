@@ -1,11 +1,21 @@
 [project]
 name = "keggmapwizard"
-packages = ["keggmapwizard"]
+description = "KeggMapWizard is a Python library that generates interactive SVG pathway maps for KEGG pathways. It enables dynamic visualization and exploration of complex biological data, allowing seamless integration into modern data analysis workflows."
 version = "0.1.0"
-description = "Add your description here"
+authors = [
+    { name = "pandeyaparna2022", email = "aparna.pandey.np@gmail.com" },
+    { name = "MrTomRod", email = "roder.thomas@gmail.com" }
+]
+license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "fire>=0.6.0",
     "pillow>=10.4.0",
-    "requests>=2.32.3",
 ]
+
+[project.scripts]
+keggmapwizard = "keggmapwizard.main:cli"
+
+[tool.setuptools.packages.find]
+include = ["keggmapwizard"]
