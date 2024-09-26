@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Feb  9 12:36:13 2024
-
-@author: Aparna Pandey
-"""
 import os
 import base64
 from io import BytesIO
@@ -13,9 +7,10 @@ import json
 import requests
 from PIL import Image
 
-#DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
 DATA_DIR = os.environ['KEGG_MAP_WIZARD_DATA']
-## TO DO ## INCORPORATE PARALLEL PROCESSING
+
+
+# todo: INCORPORATE PARALLEL PROCESSING
 def download_data(url: str, arg: str, path: str, verbose: bool = True):
     """handle the downloading of data based on a url and an argument.
 
@@ -27,13 +22,13 @@ def download_data(url: str, arg: str, path: str, verbose: bool = True):
             Returns:
                 None
     """
-   # try block for exception handeling of potential HTTP errors
+    # try block for exception handeling of potential HTTP errors
     try:
         # make a request with the current argument
-        response = requests.get(url)#
+        response = requests.get(url)  #
         # raise an HTTPError if the HTTP request returned an unsuccessful status code
-        response.raise_for_status()#
-        #If the request is successful, you can proceed with using the response
+        response.raise_for_status()  #
+        # If the request is successful, you can proceed with using the response
         if verbose:
             print("downloading", arg)
         # Define the pattern for kgml url
@@ -86,6 +81,7 @@ def download_data(url: str, arg: str, path: str, verbose: bool = True):
             if verbose:
                 print(f'An error occurred for query : {arg}. Status code: {error.response.status_code}')
 
+
 def download_rest_data(
         args_list: list,
         reload: bool = False,
@@ -124,7 +120,6 @@ def download_rest_data(
         download_data(url, arg, path, verbose)
     return
 
-###############################################################################
 
 def extract_all_map_ids():
     """
@@ -134,10 +129,10 @@ def extract_all_map_ids():
         List of map ids from "pathway.txt" file in the rest_data         
     """
     # Check if the file "pathway.txt" exists in the directory
-    #os.chdir(f'{DATA_DIR}/rest_data')
+    # os.chdir(f'{DATA_DIR}/rest_data')
     # Check if the "pathway.txt" exists in the current directory.
     path = f'{DATA_DIR}/rest_data'
-    
+
     if not os.path.exists(path):
         # Create the directory
         os.makedirs(path)
@@ -148,7 +143,7 @@ def extract_all_map_ids():
     else:
         print("File does not exist. Downloading...")
         url = "https://rest.kegg.jp/list/pathway"
-        download_data(url, 'pathway', path, verbose=True)# Call the download function to download the file
+        download_data(url, 'pathway', path, verbose=True)  # Call the download function to download the file
         # read the content of the file into the variable 'pathway'.
     with open(f'{path}/pathway.txt', 'r') as file:
         pathway = file.read()
@@ -158,7 +153,7 @@ def extract_all_map_ids():
     # flags=re.IGNORECASE parameter ensures that the search is case-insensitive.
     map_ids = re.findall(r'\bmap\d{5}\b', pathway, flags=re.IGNORECASE)
 
-    #remove map from the names
+    # remove map from the names
     remove_map_prefix = lambda x: x[3:]
 
     # Apply the transformation to each element in the list using map()
@@ -166,6 +161,7 @@ def extract_all_map_ids():
     os.chdir(f'{DATA_DIR}')
     # return the extracted map IDs as a list
     return map_ids
+
 
 def encode_png(png_path: str) -> None:
     """
@@ -204,7 +200,7 @@ def encode_png(png_path: str) -> None:
         img.save(buffer, 'PNG')
         # Close the image file
         img.close()
-        #encoded_image=base64.b64encode(buffer.getvalue()).decode()
+        # encoded_image=base64.b64encode(buffer.getvalue()).decode()
         # Create a JSON object containing the width, height, and the base64 encoded
         # string of the modified image.
         with open(png_path + '.json', 'w') as file:
@@ -245,11 +241,10 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
 
     map_ids = check_bad_requests(map_ids, path, bad_requests_file, verbose)
     map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
-    
-    if not reload:
-        map_ids = [map_id for map_id in map_ids if not os.path.isfile(f'{path}/{"map"+map_id[-5:]}.png')]
-        map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
 
+    if not reload:
+        map_ids = [map_id for map_id in map_ids if not os.path.isfile(f'{path}/{"map" + map_id[-5:]}.png')]
+        map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
 
     if len(map_ids) == 0:
         if verbose:
@@ -262,7 +257,6 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
             map_number = map_id[-5:]  # Get the last five characters
 
             if verbose:
-
                 # Display the progress of the download
                 print(f'map {map_ids.index(map_id) + 1} of {len(map_ids)}')
             # download all the maps in the filtered maps_id list
@@ -271,7 +265,7 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
             download_data(url, map_number, path, verbose)
             if encode:
                 # Call the encode_png function to modify the saved image
-                encode_png(f'{path}/{"map"+map_id[-5:] + ".png"}')
+                encode_png(f'{path}/{"map" + map_id[-5:] + ".png"}')
     # Record the end time
 
     end_time = time.time()
@@ -283,7 +277,7 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
 
 
 def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
-                  "bad_requests.txt", verbose: bool = True,file_type = 'all') -> None:
+"bad_requests.txt", verbose: bool = True, file_type='all') -> None:
     """
         Downloads KGML files for given map IDs.
         
@@ -303,7 +297,7 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
         Example usage:
         download_kgml(["map00010", "map00020"], reload=True, bad_requests_file="failed_maps.txt", verbose=True)
         """
-    #start_time = time.time()  # Record the start time
+    # start_time = time.time()  # Record the start time
 
     start_time = time.time()  # Record the start time
     map_ids = check_input(map_ids)
@@ -330,15 +324,15 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
     for map_id in map_ids:
 
         map_number = map_id[-5:]  # Get the last five characters
-        map_prefix = map_id[:-5]   # Get the rest of the string
+        map_prefix = map_id[:-5]  # Get the rest of the string
 
         ko_map_id = "ko" + map_number
         ko_map_ids.append(ko_map_id)
 
-        ec_map_id = "ec"+map_number
+        ec_map_id = "ec" + map_number
         ec_map_ids.append(ec_map_id)
 
-        rn_map_id = "rn"+map_number
+        rn_map_id = "rn" + map_number
         rn_map_ids.append(rn_map_id)
 
         if map_prefix != "map" and map_prefix != "":
@@ -355,9 +349,8 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
         ec_map_ids = [map_id for map_id in ec_map_ids if not os.path.isfile(f'{path}/ec/{map_id}.xml')]
         rn_map_ids = [map_id for map_id in rn_map_ids if not os.path.isfile(f'{path}/rn/{map_id}.xml')]
         org_map_ids = [map_id for map_id in org_map_ids if not os.path.isfile(f'{path}/orgs/{map_id}.xml')]
-        
-    
-    files_to_download  = ko_map_ids + ec_map_ids + rn_map_ids + org_map_ids
+
+    files_to_download = ko_map_ids + ec_map_ids + rn_map_ids + org_map_ids
     print(f"Missing kgml files: {files_to_download}")
 
     for i in range(len(ko_map_ids)):
@@ -396,9 +389,7 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
         print(f"Total time taken to finish task: {total_time} seconds")
 
 
-###############################################################################
-
-def check_bad_requests(args_list: list, path: str, bad_requests_file: str,  verbose: bool) -> list:
+def check_bad_requests(args_list: list, path: str, bad_requests_file: str, verbose: bool) -> list:
     """
     Checks if the arguments/files to be downloaded are in the bad_requests.txt
     Args:
@@ -416,7 +407,7 @@ def check_bad_requests(args_list: list, path: str, bad_requests_file: str,  verb
     if bad_requests_file and os.path.isfile(f'{path}/{bad_requests_file}'):
         with open(f'{path}/{bad_requests_file}', 'r') as file:
             bad_requests = file.read().splitlines()
-        #print(f"Checking the {args_list} in {bad_requests_file}.")
+        # print(f"Checking the {args_list} in {bad_requests_file}.")
 
     ################ This is more for printing if verbose == True #############
     # For printing
@@ -428,20 +419,20 @@ def check_bad_requests(args_list: list, path: str, bad_requests_file: str,  verb
         for args in filtered_args:
             print(f'{args} was previously identified as a bad request and will \
 therefore not be downloaded.')
-    ###########################################################################
-        # Filter the args_list to include only files that are not in the list
-        # of bad requests.
+
+    # Filter the args_list to include only files that are not in the list
+    # of bad requests.
     args_list = [args for args in args_list if args not in bad_requests]
 
     return args_list
 
-###############################################################################
+
 def check_input(map_ids: list):
     # Check if input is a list
     if not isinstance(map_ids, list):
         print("map_ids is not a list. Please provide a list of map IDs.")
         return []
- ##### Check if elements of map_ids fit the required format ############
+    ##### Check if elements of map_ids fit the required format ############
 
     # Create an empty list to add only the map_ids that fit the criteria
     map_id_list = []
@@ -452,14 +443,13 @@ def check_input(map_ids: list):
         # assign the substring of map_id from the beginning up to (but not including)
         # the index of the period to the variable map_id.
         if "." in map_id:
-            
             index = map_id.rindex(".")
             map_id = map_id[:index]
         # convert map_id to string
 
         map_id = str(map_id)
 
-        #check if the map id is only digits
+        # check if the map id is only digits
         if map_id.isdigit():
             # check if the length of the map number is less than 5, if so
             # pad it with leading zeros and appened it to filtered list
@@ -481,8 +471,8 @@ def check_input(map_ids: list):
                 if map_id[i].isdigit():
 
                     if map_id[i:].isdigit():
-                        map_number =  map_id[i:]
-                        prefix=map_id[:i]
+                        map_number = map_id[i:]
+                        prefix = map_id[:i]
 
                         if len(map_number) <= 5:
 

@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun  4 11:41:52 2024
-
-@author: aparn
-"""
 import json
-# pylint: disable=too-few-public-methods
+
+
 class BaseImage:
     """
     A class representing a base png pathway image .
@@ -17,7 +12,8 @@ class BaseImage:
        image_height: The height of the image.
        image_width: The width of the image.
     """
-    def __init__(self, map_id:str,image,height,width):
+
+    def __init__(self, map_id: str, image, height, width):
         """
         Initializes a new instance of the class.
     
@@ -33,7 +29,7 @@ class BaseImage:
         self.image_width = width
 
     @classmethod
-    def from_png(cls, map_id,image_path):
+    def from_png(cls, map_id, image_path):
         """
         Create a BaseImage object from a json file.
 
@@ -52,7 +48,6 @@ class BaseImage:
 
         height = str(image_data['height'])
         width = str(image_data['width'])
-        image= image_data['image']
+        image = image_data['image']
 
-        return cls(map_id, image,height,width)
-    
+        return cls(map_id, image, height, width)

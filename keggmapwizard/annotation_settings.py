@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 28 14:16:56 2024
-
-@author: Aparna
-"""
 ANNOTATION_SETTINGS = dict(
     K=dict(
         html_class='enzyme',
