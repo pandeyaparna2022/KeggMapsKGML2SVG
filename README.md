@@ -237,3 +237,11 @@ Isolating the color functions into a separate module enables users to modify or 
 ## Testing and Coloring SVGs in a browser
 To test the maps, run a simple http server in the kegg_map_wizard: python -m http.server 8000
 Then open http://localhost:8000/html/html/display_SVG.html
+
+## Future Developments
+This project is continuously evolving, with additional functionalities for various types of data visualization being actively developed. We are committed to enhancing the capabilities of this tool to meet the diverse needs of users.
+
+Currently, the project performs as described in the READE section, and we encourage users to explore its features. As part of our commitment to quality, we are also in the process of adding more unit tests to ensure reliability and performance.
+
+We welcome all users to test the functionality and report any bugs or issues encountered. Your feedback is invaluable in helping us improve the project and provide a better experience for everyone. Thank you for your support!
+
