@@ -197,7 +197,7 @@ def encode_png(png_path: str) -> None:
         img.save(buffer, 'PNG')
         # Close the image file
         img.close()
-        print('xxxxxxxxxxxxx', width)
+        
         # encoded_image=base64.b64encode(buffer.getvalue()).decode()
         # Create a JSON object containing the width, height, and the base64 encoded
         # string of the modified image.
