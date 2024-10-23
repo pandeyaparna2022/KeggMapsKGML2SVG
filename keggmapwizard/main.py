@@ -3,7 +3,7 @@ from keggmapwizard.kegg_pathway_map import download_kegg_resources
 
 
 def cli():
-    if 'KEGG_MAP_WIZARD_DATA' in os.environ:
+    if 'KEGG_MAP_WIZARD_DATA' not in os.environ:
         os.environ['KEGG_MAP_WIZARD_DATA'] = input('Please enter the path for KEGG_MAP_WIZARD_DATA: ')
 
     import fire
