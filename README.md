@@ -245,3 +245,10 @@ Currently, the project performs as described in the READE section, and we encour
 
 We welcome all users to test the functionality and report any bugs or issues encountered. Your feedback is invaluable in helping us improve the project and provide a better experience for everyone. Thank you for your support!
 
+# Unit tests
+
+How to run the unit tests:
+
+```bash
+python -m unittest discover -s tests
+```

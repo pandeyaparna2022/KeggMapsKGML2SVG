@@ -153,7 +153,7 @@ def extract_all_map_ids():
 
     # Apply the transformation to each element in the list using map()
     map_ids = list(map(remove_map_prefix, map_ids))
-    os.chdir(f'{DATA_DIR}')
+
     # return the extracted map IDs as a list
     return map_ids
 
