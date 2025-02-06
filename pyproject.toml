@@ -8,7 +8,7 @@ authors = [
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "fire>=0.6.0",
     "pillow>=10.4.0",
