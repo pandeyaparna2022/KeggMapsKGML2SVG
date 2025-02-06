@@ -1,10 +1,9 @@
-import os
 from pathlib import Path
-from .utils import KEGG_MAP_WIZARD_DATA as DATA_DIR
-from .kegg_file import KgmlFile
-from .pathway_component import PathwayComponent
-from .geometry_annotation import GeometryAnnotation
-from .annotation_settings import ANNOTATION_SETTINGS
+from keggmapwizard.config import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from keggmapwizard.kegg_file import KgmlFile
+from keggmapwizard.pathway_component import PathwayComponent
+from keggmapwizard.geometry_annotation import GeometryAnnotation
+from keggmapwizard.annotation_settings import ANNOTATION_SETTINGS
 
 
 class Pathway:

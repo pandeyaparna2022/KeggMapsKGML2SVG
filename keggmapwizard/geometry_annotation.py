@@ -1,4 +1,4 @@
-from .annotation_settings import ANNOTATION_SETTINGS
+from keggmapwizard.annotation_settings import ANNOTATION_SETTINGS
 
 compound_reaction_mapping = {
     "gl": "G",
@@ -111,7 +111,7 @@ class GeometryAnnotation():
                     result = result.replace("<=>", "(1->4)")
                 else:
                     result = ''
-                # print(result)
+
                 description = result
 
                 if anno_type == 'EC' or anno_type == "RC" or anno_type == "R":

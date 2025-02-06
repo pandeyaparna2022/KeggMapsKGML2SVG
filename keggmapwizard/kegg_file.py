@@ -1,7 +1,6 @@
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-
 class KgmlFile:
     def __init__(self, map_id, file_type, data_directory, reload=False):
 

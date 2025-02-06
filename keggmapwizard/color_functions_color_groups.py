@@ -1,6 +1,5 @@
 from xml.etree import ElementTree as ET
 
-
 def check_anno(title_text, group, group_no):
     colors = []
 

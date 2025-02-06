@@ -1,6 +1,5 @@
 from xml.etree import ElementTree as ET
 
-
 def color_all(*args, data):
     """
     Parse the element_tree object
@@ -10,17 +9,20 @@ def color_all(*args, data):
     if args:
         color = args[0]
     else:
-        color = 'blue'
+        color = 'red'
     # Set the fill of each element to the specified color
     for element in elements:
-        element.set('fill', color)
+               
         element.set('stroke', color)
-        element.set('stroke-width', '3')
-        element.set('fill', color)
-        element.set('fill-opacity', '0.15')
+        element.set('stroke-width', '5')   
+        
+        
+        if element.tag != "path":
+            element.set('fill', color)
+            element.set('stroke-width', '3')
+        element.set('fill-opacity', '1')
 
     return root, None
-
 
 def color_org(org, *args, data):
     """

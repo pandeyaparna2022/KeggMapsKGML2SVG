@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
-from .utils import KEGG_MAP_WIZARD_DATA as DATA_DIR
-from .geometry import geometry_factory
+from keggmapwizard.config import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from keggmapwizard.geometry import geometry_factory
 
 
 class PathwayComponent:
