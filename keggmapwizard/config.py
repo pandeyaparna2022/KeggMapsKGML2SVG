@@ -93,5 +93,3 @@ else:
           print("The default working directory has been set to", config.working_dir)
            
 KEGG_MAP_WIZARD_DATA = config.working_dir
-print(KEGG_MAP_WIZARD_DATA)
-

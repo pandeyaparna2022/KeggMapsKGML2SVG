@@ -1,0 +1,11 @@
+.*
+keggmapwizard.egg-info
+kgml_data
+maps_png
+resources
+rest_data
+SVG_output
+KEGG_MAP_WIZARD_DATA
+html
+**/__pycache__/
+test*
