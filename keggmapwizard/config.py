@@ -41,13 +41,14 @@ class Config:
             if not os.path.isdir(KEGG_MAP_WIZARD_DATA):
                 try:
                     os.makedirs(KEGG_MAP_WIZARD_DATA, exist_ok=True)
+                    print(os.path.abspath(KEGG_MAP_WIZARD_DATA))
                 except FileNotFoundError as e:
                     # if the env variable does not have a valid path then print 
                     # an error and remove it
                     print(f"Error: {e}. Please check if the base path exists.")
                     del os.environ['KEGG_MAP_WIZARD_DATA']
                     
-        self.working_dir = os.environ.get('KEGG_MAP_WIZARD_DATA',self.working_dir)
+        self.working_dir = os.path.abspath(os.environ.get('KEGG_MAP_WIZARD_DATA',self.working_dir))
 
     def set_working_dir(self, new_path):
         """
@@ -92,5 +93,5 @@ else:
           print("The default working directory has been set to", config.working_dir)
            
 KEGG_MAP_WIZARD_DATA = config.working_dir
-
+print(KEGG_MAP_WIZARD_DATA)
 

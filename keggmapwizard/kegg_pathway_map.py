@@ -104,7 +104,7 @@ class KeggPathwayMap:
         """
         if self._organism is None:
             if self.map_id[:-5] not in ['ko', 'ec', 'rn', '']:
-                file_path = DATA_DIR / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
+                file_path =  Path(DATA_DIR) / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
                 if os.path.exists(file_path):
                     organism = self.map_id[:-5]
                 else:
@@ -191,12 +191,15 @@ class KeggPathwayMap:
         -------
         None
         """
+        args_list = ['pathway', 'br', 'md', 'ko', 'gn', 'compound', 'glycan', 'rn', 'rc',
+                     'enzyme', 'ne', 'variant', 'ds', 'drug', 'dgroup']
         if self.map_id != '':
+            download_rest_data(args_list, self._reload)            
             download_kgml([self.map_id], self._reload)
             download_base_png_maps([self.map_id], self._reload)
 
             if self.organism is not None:
-                kgml_file_path = (DATA_DIR / Path("kgml_data") / Path('orgs') /
+                kgml_file_path = (Path(DATA_DIR) / Path("kgml_data") / Path('orgs') /
                                   Path(f"{self.map_id}.xml"))
                 if os.path.exists(kgml_file_path):
                     rest_file = self.organism
@@ -224,13 +227,13 @@ class KeggPathwayMap:
         base_file_types = ['ko', 'ec', 'rn']
 
         for file_type in base_file_types:
-            file_path = (DATA_DIR / Path("kgml_data") / Path(file_type) /
+            file_path = (Path(DATA_DIR) / Path("kgml_data") / Path(file_type) /
                          Path(f"{file_type}{self.map_id[-5:]}.xml"))
             if os.path.exists(file_path):
                 existing_file_types.append(file_type)
 
         if self.organism is not None:
-            kgml_file_path = (DATA_DIR / Path("kgml_data") / Path('orgs') /
+            kgml_file_path = (Path(DATA_DIR) / Path("kgml_data") / Path('orgs') /
                               Path(f"{self.map_id}.xml"))
             if os.path.exists(kgml_file_path):
                 existing_file_types.append('orgs')
@@ -287,7 +290,8 @@ class KeggPathwayMap:
             found and successfully created; otherwise, returns None.
         """
         base_image = None
-        image_path = DATA_DIR / Path("maps_png") / Path(f"map{self.map_id[-5:]}.png.json")
+        image_path = Path(DATA_DIR) / Path("maps_png") / Path(f"map{self.map_id[-5:]}.json")
+
         if os.path.exists(image_path):
             base_image = BaseImage.from_png(self.map_id, image_path)
 
@@ -332,7 +336,7 @@ class KeggPathwayMap:
                                                     color_function, *args)
             # Create directory for SVG outputs
             if path is None:
-                out_dir = DATA_DIR / Path("SVG_output")
+                out_dir =  Path(DATA_DIR) / Path("SVG_output")
             else:
                 if os.path.exists(Path(path)):
                     out_dir = Path(path) / Path("SVG_output")
