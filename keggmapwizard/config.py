@@ -32,9 +32,21 @@ class Config:
         # Set a default working directory by joining the system's temporary directory
         # with the subdirectory "KEGG_MAP_WIZARD_DATA".
         self.working_dir = os.path.join(tempfile.gettempdir(), "KEGG_MAP_WIZARD_DATA")
-
+        
         # Check if an environment variable 'KEGG_MAP_WIZARD_DATA' is set; if it is,
-        # override the default working directory with its value. If not, keep the default
+        # assess if it is a valid path.and if so override the default working
+        # directory with its value. If not, keep the default
+        if 'KEGG_MAP_WIZARD_DATA' in os.environ:
+            KEGG_MAP_WIZARD_DATA = os.environ['KEGG_MAP_WIZARD_DATA']
+            if not os.path.isdir(KEGG_MAP_WIZARD_DATA):
+                try:
+                    os.makedirs(KEGG_MAP_WIZARD_DATA, exist_ok=True)
+                except FileNotFoundError as e:
+                    # if the env variable does not have a valid path then print 
+                    # an error and remove it
+                    print(f"Error: {e}. Please check if the base path exists.")
+                    del os.environ['KEGG_MAP_WIZARD_DATA']
+                    
         self.working_dir = os.environ.get('KEGG_MAP_WIZARD_DATA',self.working_dir)
 
     def set_working_dir(self, new_path):
@@ -54,25 +66,31 @@ class Config:
 
 # Create a singleton instance of the Config class, allowing global access to the configuration.
 config = Config()
-# Print the default working directory that has been set during initialization.
-print("Default working directory is set to:", config.working_dir)
-# Prompt the user to enter a desired path for the working directory, allowing it to be optional.
-USER_PATH= input('Please enter the desired path for KEGG_MAP_WIZARD_DATA (optional): ')
-# If the user input is empty, set USER_PATH to None.
-if USER_PATH == '':
-    USER_PATH = None
-# If the user provided a path, update the working directory to the absolute path
-# of the provided input.
-if USER_PATH is not None:
-    config.set_working_dir(os.path.abspath(USER_PATH))
-# Print the current working directory after any updates made by the user.
-print("Working directory has been set to:", config.working_dir)
-# Check if the working directory exists; if it doesn't, create the directory.
-if not os.path.isdir(config.working_dir):
-    os.mkdir(config.working_dir)
-# If the environment variable 'KEGG_MAP_WIZARD_DATA' is not set, assign the
-# current working directory to it.
-if 'KEGG_MAP_WIZARD_DATA' not in os.environ:
-    os.environ['KEGG_MAP_WIZARD_DATA'] = config.working_dir
-# Assign the working directory to a constant variable for further use in the application.
+
+if 'KEGG_MAP_WIZARD_DATA' in os.environ:
+    print("Default working directory is set to:", config.working_dir)
+    
+else:
+    # Prompt the user to enter a desired path for the working directory, allowing it to be optional.
+    KEGG_MAP_WIZARD_DATA= input('Please enter the desired path for KEGG_MAP_WIZARD_DATA '
+                     'or press Enter to create a new folder in the current directory : ')
+
+    # If the user input is empty, create a data directory in current path.
+    if KEGG_MAP_WIZARD_DATA == '':
+        KEGG_MAP_WIZARD_DATA = './KEGG_MAP_WIZARD_DATA'
+        
+    # Try to create the directory if the path is not valid set the data directory
+    # the default one
+    try:
+        os.makedirs(KEGG_MAP_WIZARD_DATA, exist_ok=True)
+        os.environ['KEGG_MAP_WIZARD_DATA'] = os.path.abspath(KEGG_MAP_WIZARD_DATA)
+        config.set_working_dir(os.path.abspath(KEGG_MAP_WIZARD_DATA))
+        # Print the current working directory after any updates made by the user.
+        print("Working directory has been set to:", config.working_dir)
+    except FileNotFoundError as e:
+          print(f"Error: {e}. Please check if the base path exists.")
+          print("The default working directory has been set to", config.working_dir)
+           
 KEGG_MAP_WIZARD_DATA = config.working_dir
+
+
