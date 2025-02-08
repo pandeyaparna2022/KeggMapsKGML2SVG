@@ -1,5 +1,6 @@
 import json
 
+
 class BaseImage:
     """
     A class representing a base png pathway image .

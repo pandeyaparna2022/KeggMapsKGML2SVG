@@ -1,5 +1,5 @@
 from pathlib import Path
-from keggmapwizard.config import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from keggmapwizard.config import config
 from keggmapwizard.kegg_file import KgmlFile
 from keggmapwizard.pathway_component import PathwayComponent
 from keggmapwizard.geometry_annotation import GeometryAnnotation
@@ -60,13 +60,13 @@ class Pathway:
         kegg_files = []
         kegg_file_types = [element for element in self._file_types if element != 'orgs']
         for file_type in kegg_file_types:
-            kegg_files.append(KgmlFile(self.map_id[-5:], file_type, DATA_DIR))
+            kegg_files.append(KgmlFile(self.map_id[-5:], file_type, config.working_dir))
         return kegg_files
 
     def __create_org_file(self):
         org_file = []
         if 'orgs' in self._file_types:
-            org_file.append(KgmlFile(self.map_id, 'orgs', DATA_DIR))
+            org_file.append(KgmlFile(self.map_id, 'orgs', config.working_dir))
         return org_file
 
     def __create_pathway_components(self):
@@ -129,7 +129,7 @@ class Pathway:
             if rest_file == 'org':
                 rest_file = organism
             if rest_file != '':
-                file_path = DATA_DIR / Path('rest_data') / Path(f"{rest_file}.txt")
+                file_path = Path(config.working_dir) / 'rest_data' / f"{rest_file}.txt"
             # Open the rest file and store it in a variable with the same name as the key
             try:
                 with open(file_path, 'r') as file:

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 16 12:30:39 2024
-
-@author: aparn
-"""
-
 import unittest  # Import the unittest module for creating unit tests.
 from unittest.mock import patch, mock_open  # Import patch and mock_open for mocking file operations.
 import json  # Import the json module to handle JSON data.

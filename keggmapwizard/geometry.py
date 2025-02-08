@@ -5,10 +5,6 @@ class Geometry:
 
 
 class Line(Geometry):
-    def __init__(self, geometry_coords: dict, geometry_shape: str):
-        self.geometry_coords = geometry_coords
-        self.geometry_shape = geometry_shape
-
     @classmethod
     def geometry_details(cls, data):
         # Convert the geometry string to a list of integers
@@ -29,15 +25,10 @@ class Line(Geometry):
 
 
 class Circle(Geometry):
-    def __init__(self, geometry_coords: dict, geometry_shape: str):
-        self.geometry_coords = geometry_coords
-        self.geometry_shape = geometry_shape
-
     @classmethod
     def geometry_details(cls, data):
         # Calculate the radius of the  and assign x and y coordinates to cs and cy
         geometry = {
-
             # Calculate the radius
             'r': int(data['graphics']['width']) / 2,
             'cx': int(data['graphics']['x']),
@@ -49,10 +40,6 @@ class Circle(Geometry):
 
 
 class Rectangle(Geometry):
-    def __init__(self, geometry_coords: dict, geometry_shape: str):
-        self.geometry_coords = geometry_coords
-        self.geometry_shape = geometry_shape
-
     @classmethod
     def geometry_details(cls, data):
 

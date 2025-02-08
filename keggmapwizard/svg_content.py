@@ -34,7 +34,6 @@ def __create_namespace(base_image, title):
 
 def create_svg_content(pathway, base_image, color_function, *args):
     # Assign the value of fill_color to the variable fill
-
     pathway_components = pathway.pathway_components
 
     # Call the _create_namespace function with the pathway_id, width, and height
@@ -150,7 +149,6 @@ def create_svg_content(pathway, base_image, color_function, *args):
 
 def define_legend(colors, base_image, doc, color_func):
     # Create the inner rectangle
-
     inner_rect1 = ET.Element('rect',
                              x=str(int(base_image.image_width) + 10),
                              y="0",
@@ -197,7 +195,6 @@ def define_legend(colors, base_image, doc, color_func):
     elif len(filtered_colors) > 1:
         counter = 0
         for color in filtered_colors:
-
             # Create the inner rectangle
             inner_rect2 = ET.Element('rect',
                                      x=str(int(base_image.image_width) + 10),

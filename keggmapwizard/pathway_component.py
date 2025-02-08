@@ -1,12 +1,11 @@
 import os
 from pathlib import Path
-from keggmapwizard.config import KEGG_MAP_WIZARD_DATA as DATA_DIR
+from keggmapwizard.config import config
 from keggmapwizard.geometry import geometry_factory
 
 
 class PathwayComponent:
     def __init__(self, entry: dict):
-
         self.entry = entry
         self.pathway_component_id = entry['id']
         self.__pc_entry_shape_object = geometry_factory(entry)
@@ -24,7 +23,6 @@ class PathwayComponent:
         self.pathway_annotation_data = [{'name': entry_name[0], 'type': entry_type[0]}]
 
     def is_equivalent(self, existing_pcs, file_name):
-
         entry_id = self.pathway_component_id
         if entry_id in existing_pcs and existing_pcs[
             entry_id].pathway_component_geometry == self.pathway_component_geometry:
@@ -36,7 +34,7 @@ class PathwayComponent:
             if not os.path.exists(dir_name):
                 # Create the directory
                 os.makedirs(dir_name)
-            file_path = Path(DATA_DIR) / Path(dir_name) / Path(f'{file_name}.txt')
+            file_path = Path(config.working_dir) / dir_name / f'{file_name}.txt'
 
             with open(file_path, 'a') as file:
                 file.write(f"{entry_id}: {self.pathway_component_geometry}\n")  # Corrected the write format

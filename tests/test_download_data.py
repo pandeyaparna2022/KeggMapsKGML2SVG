@@ -10,7 +10,8 @@ import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import urllib.error
 from keggmapwizard.download_data import download_data, download_rest_data, extract_all_map_ids, encode_png, check_input
-from keggmapwizard.utils import KEGG_MAP_WIZARD_DATA as DATA_DIR  # Import DATA_DIR
+from keggmapwizard.config import config
+DATA_DIR = config.working_dir
 
 class TestDownloadData(unittest.TestCase):
 

@@ -1,24 +1,18 @@
 """
-
 This module provides functionality for creating KEGG pathway maps in svg format.
 It includes classes and methods for downloading pathway data, processing it, 
 and saving the pathway map in svg format.
-
-Created on Thu Feb  6 12:40:16 2024
-
-@author: Aparna Pandey
 """
 import os
 from xml.etree import ElementTree as ET
 from pathlib import Path
-from keggmapwizard.config import  KEGG_MAP_WIZARD_DATA as DATA_DIR
+from keggmapwizard.config import config
 from keggmapwizard.download_data import (download_rest_data, download_base_png_maps,
                                          download_kgml, check_input, extract_all_map_ids)
 from keggmapwizard.pathway import Pathway
 from keggmapwizard.base_image import BaseImage
 from keggmapwizard.svg_content import create_svg_content
-#from keggmapwizard.color_function_base import (color_all, color_custom_annotations,
-#                                              color_org) #why did you remove it?
+
 
 class KeggPathwayMap:
     """
@@ -53,8 +47,8 @@ class KeggPathwayMap:
                         based on the map ID.
         __create_pathway(): Creates a pathway object based on the available file types.
         __base_image(): Retrieves the base image for the pathway from the specified path.
-
     """
+
     def __init__(self, map_id=None, reload=False):
         print(f"Initializing an instance of {self.__class__.__name__}")
         print("Retreiving/downloading required resources.")
@@ -104,7 +98,7 @@ class KeggPathwayMap:
         """
         if self._organism is None:
             if self.map_id[:-5] not in ['ko', 'ec', 'rn', '']:
-                file_path =  Path(DATA_DIR) / Path("kgml_data") / Path('orgs') / Path(f"{self.map_id}.xml")
+                file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{self.map_id}.xml"
                 if os.path.exists(file_path):
                     organism = self.map_id[:-5]
                 else:
@@ -194,13 +188,12 @@ class KeggPathwayMap:
         args_list = ['pathway', 'br', 'md', 'ko', 'gn', 'compound', 'glycan', 'rn', 'rc',
                      'enzyme', 'ne', 'variant', 'ds', 'drug', 'dgroup']
         if self.map_id != '':
-            download_rest_data(args_list, self._reload)            
+            download_rest_data(args_list, self._reload)
             download_kgml([self.map_id], self._reload)
             download_base_png_maps([self.map_id], self._reload)
 
             if self.organism is not None:
-                kgml_file_path = (Path(DATA_DIR) / Path("kgml_data") / Path('orgs') /
-                                  Path(f"{self.map_id}.xml"))
+                kgml_file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{self.map_id}.xml"
                 if os.path.exists(kgml_file_path):
                     rest_file = self.organism
                     download_rest_data([rest_file], self._reload)
@@ -227,14 +220,12 @@ class KeggPathwayMap:
         base_file_types = ['ko', 'ec', 'rn']
 
         for file_type in base_file_types:
-            file_path = (Path(DATA_DIR) / Path("kgml_data") / Path(file_type) /
-                         Path(f"{file_type}{self.map_id[-5:]}.xml"))
+            file_path = Path(config.working_dir) / "kgml_data" / file_type / f"{file_type}{self.map_id[-5:]}.xml"
             if os.path.exists(file_path):
                 existing_file_types.append(file_type)
 
         if self.organism is not None:
-            kgml_file_path = (Path(DATA_DIR) / Path("kgml_data") / Path('orgs') /
-                              Path(f"{self.map_id}.xml"))
+            kgml_file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{self.map_id}.xml"
             if os.path.exists(kgml_file_path):
                 existing_file_types.append('orgs')
 
@@ -290,14 +281,14 @@ class KeggPathwayMap:
             found and successfully created; otherwise, returns None.
         """
         base_image = None
-        image_path = Path(DATA_DIR) / Path("maps_png") / Path(f"map{self.map_id[-5:]}.json")
+        image_path = Path(config.working_dir) / "maps_png" / f"map{self.map_id[-5:]}.json"
 
         if os.path.exists(image_path):
             base_image = BaseImage.from_png(self.map_id, image_path)
 
         return base_image
 
-    def create_svg_map(self, color_function=None, path=None, output_name=None,*args,):
+    def create_svg_map(self, color_function=None, path=None, output_name=None, *args, ):
         """
         Creates an SVG representation of the KEGG pathway map and saves it to a specified location.
         
@@ -326,7 +317,6 @@ class KeggPathwayMap:
         object: The SVG pathway object created. Returns None if the pathway or base image 
                 is not available.
         """
-
         if self.base_image is None or self.pathway is None:
             print('No pathway to create')
             svg_pathway_object = None
@@ -336,21 +326,21 @@ class KeggPathwayMap:
                                                     color_function, *args)
             # Create directory for SVG outputs
             if path is None:
-                out_dir =  Path(DATA_DIR) / Path("SVG_output")
+                out_dir = Path(config.working_dir) / "SVG_output"
             else:
                 if os.path.exists(Path(path)):
-                    out_dir = Path(path) / Path("SVG_output")
+                    out_dir = Path(path) / "SVG_output"
                 else:
-                    out_dir = Path(DATA_DIR) / Path("SVG_output")
+                    out_dir = Path(config.working_dir) / "SVG_output"
                     print(
                         "The given path for the output does not exist. Therefore,"
                         " the files will be stored in the default output directory:")
                     print(out_dir)
             os.makedirs(out_dir, exist_ok=True)
             if output_name is None:
-                file_path = out_dir / Path(f"{self.pathway.org}{self.map_id[-5:]}.svg")
+                file_path = out_dir / f"{self.pathway.org}{self.map_id[-5:]}.svg"
             else:
-                file_path = out_dir / Path(f"{output_name}.svg")
+                file_path = out_dir / f"{output_name}.svg"
             with open(file_path, 'wb') as file:
                 file.write(b'\n')
                 file.write(b'\n')

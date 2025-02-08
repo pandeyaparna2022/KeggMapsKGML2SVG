@@ -8,7 +8,8 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 from PIL import Image
-from keggmapwizard.config import  KEGG_MAP_WIZARD_DATA as DATA_DIR
+from keggmapwizard.config import config
+
 
 # TODO: INCORPORATE PARALLEL PROCESSING
 def download_data(url: str, arg: str, path: str, verbose: bool = True):
@@ -27,7 +28,7 @@ def download_data(url: str, arg: str, path: str, verbose: bool = True):
 
     def save_file(content, file_name, mode='w'):
         """Helper function to save content to a file."""
-        with open(Path(path) / Path(f'{file_name}'), mode) as file:
+        with open(Path(path) / f'{file_name}', mode) as file:
             file.write(content)
         if verbose:
             print(f"Saved {file_name}")
@@ -92,7 +93,7 @@ def download_rest_data(
          verbose: if True: print summary
     """
     # create a directory for the rest data and changes the working directory to it.
-    path = Path(DATA_DIR) / Path("rest_data")
+    path = Path(config.working_dir) / "rest_data"
     os.makedirs(Path(path), exist_ok=True)
 
     # Check if any of the arguments in the args_list are
@@ -102,7 +103,7 @@ def download_rest_data(
     args_list = check_bad_requests(args_list, path, bad_requests_file, verbose)
 
     if not reload:
-        args_list = [args for args in args_list if not os.path.isfile(Path(path) / Path(f'{args}.txt'))]
+        args_list = [args for args in args_list if not os.path.isfile(path / f'{args}.txt')]
 
     if len(args_list) == 0:
         if verbose:
@@ -124,12 +125,12 @@ def extract_all_map_ids():
         List of map ids from "pathway.txt" file in the rest_data         
     """
     # Check if the file "pathway.txt" exists in the directory
-    path = Path(DATA_DIR) / Path("rest_data")
+    path = Path(config.working_dir) / "rest_data"
 
     if not os.path.exists(path):
         # Create the directory
         os.makedirs(path)
-    if os.path.isfile(Path(path) / Path("pathway.txt")):
+    if os.path.isfile(path / "pathway.txt"):
         print("pathway.txt file exists. Extracting map ids from this file ...")
     # If the file does not exist, initiate the download of the 'pathway' file
     # using the download_data() function
@@ -139,7 +140,7 @@ def extract_all_map_ids():
         # Call the download function to download the file
         download_data(url, 'pathway', path, verbose=True)
         # read the content of the file into the variable 'pathway'.
-    with open(Path(path) / Path("pathway.txt"), 'r') as file:
+    with open(path / "pathway.txt", 'r') as file:
         pathway = file.read()
 
     # re.findall() function to extract all the map IDs from the 'pathway'
@@ -189,13 +190,13 @@ def encode_png(png_path) -> None:
                 r, b, g, a = pixdata[x_coord, y_coord]
 
                 # Check if pixel is white
-                if r == 255 and b == 255 and g == 255 and a ==255:
+                if r == 255 and b == 255 and g == 255 and a == 255:
                     pixdata[x_coord, y_coord] = (255, 255, 255, 0)
-                #Check if pixel is grey
+                # Check if pixel is grey
                 elif r == b == g and r != 0:
                     assert a == 255, f'{(r,g,b,a)=}'
                     # All pixels are black with variable transparency
-                    pixdata[x_coord, y_coord] = (0, 0, 0, 255-r)
+                    pixdata[x_coord, y_coord] = (0, 0, 0, 255 - r)
 
         # Create a buffer to save the modified image as a PNG
         buffer = BytesIO()
@@ -236,9 +237,9 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
     # Record the start time
     start_time = time.time()  # Record the start time
     # Create a directory to store the PNGa maps if it doesn't exist
-    path = Path(DATA_DIR) / Path("maps_png")
+    path = Path(config.working_dir) / "maps_png"
 
-    os.makedirs(Path(path), exist_ok=True)
+    os.makedirs(path, exist_ok=True)
     # Check if any of the arguments in the map_ids are
     # 1) in bad_requests and
     # 2) already present only if reload == True
@@ -247,8 +248,7 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
     map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
 
     if not reload:
-        map_ids = [map_id for map_id in map_ids if not os.path.isfile(Path(path)
-                                    / Path(f'map{map_id[-5:]}.json'))]
+        map_ids = [map_id for map_id in map_ids if not os.path.isfile(path / f'map{map_id[-5:]}.json')]
         map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
 
     if len(map_ids) == 0:
@@ -271,7 +271,7 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
             download_data(url, map_number, path, verbose)
 
             # Call the encode_png function to modify the saved image
-            encode_png(Path(path) / Path(f'map{map_id[-5:]}.png'))
+            encode_png(path / f'map{map_id[-5:]}.png')
 
     # Record the end time
     end_time = time.time()
@@ -282,8 +282,13 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
         print(f"Total time taken to finish task: {total_time} seconds")
 
 
-def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
-"bad_requests.txt", verbose: bool = True, file_type='all') -> None:
+def download_kgml(
+        map_ids: [str],
+        reload: bool = False,
+        bad_requests_file: str = "bad_requests.txt",
+        verbose: bool = True,
+        file_type='all'
+) -> None:
     """
         Downloads KGML files for given map IDs.
         
@@ -317,12 +322,12 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
         print("Nothing to download.")
         return
 
-    path = Path(DATA_DIR) / Path("kgml_data")
+    path = Path(config.working_dir) / "kgml_data"
     os.makedirs(f'{path}', exist_ok=True)
-    os.makedirs(Path(path) / Path("ko"), exist_ok=True)
-    os.makedirs(Path(path) / Path("ec"), exist_ok=True)
-    os.makedirs(Path(path) / Path("rn"), exist_ok=True)
-    os.makedirs(Path(path) / Path("orgs"), exist_ok=True)
+    os.makedirs(path / "ko", exist_ok=True)
+    os.makedirs(path / "ec", exist_ok=True)
+    os.makedirs(path / "rn", exist_ok=True)
+    os.makedirs(path / "orgs", exist_ok=True)
 
     # Check if any of the arguments in the map_ids are
     # 1) in bad_requests and
@@ -332,9 +337,9 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
     ec_map_ids = []
     rn_map_ids = []
     org_map_ids = []
+
     # Iterate through each element of the map_ids list
     for map_id in map_ids:
-
         map_number = map_id[-5:]  # Get the last five characters
         map_prefix = map_id[:-5]  # Get the rest of the string
 
@@ -351,24 +356,16 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
             org_map_id = map_prefix + map_number
             org_map_ids.append(org_map_id)
 
-    ko_map_ids = check_bad_requests(list(set(ko_map_ids)),Path(path) /
-                                    Path("ko"), bad_requests_file, verbose)
-    ec_map_ids = check_bad_requests(list(set(ec_map_ids)), Path(path) /
-                                    Path("ec"), bad_requests_file, verbose)
-    rn_map_ids = check_bad_requests(list(set(rn_map_ids)), Path(path) /
-                                    Path("rn"), bad_requests_file, verbose)
-    org_map_ids = check_bad_requests(list(set(org_map_ids)), Path(path) /
-                                     Path("orgs"), bad_requests_file, verbose)
+    ko_map_ids = check_bad_requests(list(set(ko_map_ids)), path / "ko", bad_requests_file, verbose)
+    ec_map_ids = check_bad_requests(list(set(ec_map_ids)), path / "ec", bad_requests_file, verbose)
+    rn_map_ids = check_bad_requests(list(set(rn_map_ids)), path / "rn", bad_requests_file, verbose)
+    org_map_ids = check_bad_requests(list(set(org_map_ids)), path / "orgs", bad_requests_file, verbose)
 
     if not reload:
-        ko_map_ids = [map_id for map_id in ko_map_ids if not os.path.isfile(Path(path)
-                                                / Path("ko") / Path(f"{map_id}.xml"))]
-        ec_map_ids = [map_id for map_id in ec_map_ids if not os.path.isfile(Path(path)
-                                                / Path("ec") / Path(f"{map_id}.xml"))]
-        rn_map_ids = [map_id for map_id in rn_map_ids if not os.path.isfile(Path(path)
-                                                / Path("rn") / Path(f"{map_id}.xml"))]
-        org_map_ids = [map_id for map_id in org_map_ids if not os.path.isfile(Path(path)
-                                                / Path("orgs") / Path(f"{map_id}.xml"))]
+        ko_map_ids = [map_id for map_id in ko_map_ids if not os.path.isfile(path / "ko" / f"{map_id}.xml")]
+        ec_map_ids = [map_id for map_id in ec_map_ids if not os.path.isfile(path / "ec" / f"{map_id}.xml")]
+        rn_map_ids = [map_id for map_id in rn_map_ids if not os.path.isfile(path / "rn" / f"{map_id}.xml")]
+        org_map_ids = [map_id for map_id in org_map_ids if not os.path.isfile(path / "orgs" / f"{map_id}.xml")]
 
     files_to_download = ko_map_ids + ec_map_ids + rn_map_ids + org_map_ids
 
@@ -379,28 +376,28 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
             print(f'ko file {i + 1} of {len(ko_map_ids)}')
 
         ko_url = f"http://rest.kegg.jp/get/{ko_map_ids[i]}/kgml"
-        download_data(ko_url, ko_map_ids[i], path / Path("ko"))
+        download_data(ko_url, ko_map_ids[i], path / "ko")
 
     for i in range(len(ec_map_ids)):
         if verbose:
             print(f'ec file {i + 1} of {len(ec_map_ids)}')
 
         ec_url = f"http://rest.kegg.jp/get/{ec_map_ids[i]}/kgml"
-        download_data(ec_url, ec_map_ids[i], path / Path("ec"))
+        download_data(ec_url, ec_map_ids[i], path / "ec")
 
     for i in range(len(rn_map_ids)):
         if verbose:
             print(f'rn file {i + 1} of {len(rn_map_ids)}')
 
         rn_url = f"http://rest.kegg.jp/get/{rn_map_ids[i]}/kgml"
-        download_data(rn_url, rn_map_ids[i], path / Path("rn"))
+        download_data(rn_url, rn_map_ids[i], path / "rn")
 
     for i in range(len(org_map_ids)):
         if verbose:
             print(f'organism file {i + 1} of {len(org_map_ids)}')
 
         org_url = f"http://rest.kegg.jp/get/{org_map_ids[i]}/kgml"
-        download_data(org_url, org_map_ids[i], path / Path("orgs"))
+        download_data(org_url, org_map_ids[i], path / "orgs")
 
     end_time = time.time()
     # Calculate the total time taken
@@ -410,7 +407,7 @@ def download_kgml(map_ids: [str], reload: bool = False, bad_requests_file: str =
         print(f"Total time taken to finish task: {total_time} seconds")
 
 
-def check_bad_requests(args_list: list, path: str, bad_requests_file: str, verbose: bool) -> list:
+def check_bad_requests(args_list: list, path: Path | str, bad_requests_file: Path | str, verbose: bool) -> list:
     """
     Checks if the arguments/files to be downloaded are in the bad_requests.txt
     Args:

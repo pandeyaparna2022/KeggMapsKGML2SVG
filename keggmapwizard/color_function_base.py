@@ -1,5 +1,6 @@
 from xml.etree import ElementTree as ET
 
+
 def color_all(*args, data):
     """
     Parse the element_tree object
@@ -12,17 +13,16 @@ def color_all(*args, data):
         color = 'red'
     # Set the fill of each element to the specified color
     for element in elements:
-               
         element.set('stroke', color)
-        element.set('stroke-width', '5')   
-        
-        
+        element.set('stroke-width', '5')
+
         if element.tag != "path":
             element.set('fill', color)
             element.set('stroke-width', '3')
         element.set('fill-opacity', '1')
 
     return root, None
+
 
 def color_org(org, *args, data):
     """
@@ -58,7 +58,6 @@ def color_custom_annotations(query: dict, *args, data):
     """
     Color only shapes with indicated annotation blue
     """
-    colors = []
     # Use the provided data as the root of the XML tree
     root = data
 
@@ -106,7 +105,7 @@ def color_custom_annotations(query: dict, *args, data):
                         updated_title_text = []
                         # Update title text with the key
                         for item in title_text:
-                            if (value in item):
+                            if value in item:
                                 updated_title_text.append(f"{key}:{item}")
                                 shapes.set('fill-opacity', '0.5')  # Set opacity
 
@@ -142,11 +141,11 @@ def set_gradient(anno: str, shape_element, defs, colors: list = ['yellow', 'red'
     offset = 100 / len(colors)
 
     # Create a <linearGradient> element with the generated gradient_id and
-    # x1, y1, x2, y2 attributes            
+    # x1, y1, x2, y2 attributes
     gradient_element = ET.SubElement(defs, 'linearGradient', id=gradient_id, x1='0%', y1='0%', x2='100%', y2='0%')
     offset1 = offset - offset
     offset2 = offset
-    # Create a <stop> elements with the offset and stop-color attributes 
+    # Create a <stop> elements with the offset and stop-color attributes
     # for all the colors
     for col in range(len(colors)):
         stop_element1 = ET.SubElement(gradient_element, 'stop')
@@ -160,7 +159,7 @@ def set_gradient(anno: str, shape_element, defs, colors: list = ['yellow', 'red'
         # Update the offset values for the next color stop
         offset1 = offset2
         offset2 = offset2 + offset
-    # Set the 'fill' and 'stroke' attributes of the shape_element to 
+    # Set the 'fill' and 'stroke' attributes of the shape_element to
     # reference the gradient_id
 
     shape_element.set('fill', 'url(#{})'.format(gradient_id))
