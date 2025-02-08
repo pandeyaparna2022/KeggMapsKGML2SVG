@@ -27,9 +27,9 @@ ENV PATH="/app/.venv/bin:$PATH"
 # This RUN command uses Docker's BuildKit features to create a layer that installs project dependencies.
 # It mounts a cache directory for 'uv' to speed up future builds, and binds the `uv.lock` and `pyproject.toml` files from the host.
 # The `uv sync` command synchronizes dependencies based on the lock file without installing the project or development dependencies.
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+RUN --mount=type=cache,target=/root/.cache/uv,Z \
+    --mount=type=bind,source=uv.lock,target=uv.lock,Z \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml,Z \
     uv sync --frozen --no-install-project --no-dev
 
 # This command copies all files from the current directory on the host into the `/app` directory in the container. 
