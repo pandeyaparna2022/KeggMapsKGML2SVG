@@ -1,5 +1,5 @@
 from keggmapwizard.annotation_settings import ANNOTATION_SETTINGS
-
+# Map specific compound/reaction prefixes to shorthand codes
 compound_reaction_mapping = {
     "gl": "G",
     "dr": "D",
@@ -9,7 +9,7 @@ compound_reaction_mapping = {
     "rc": "RC",
 }
 
-# Define mappings for other query types
+# Map other query types to their corresponding annotation codes
 query_type_mapping = {
     'enzyme': 'EC',
     'ortholog': 'K',
@@ -19,15 +19,18 @@ query_type_mapping = {
     'gene': 'Gene',
 }
 
-
+# GeometryAnnotation class for providing annotations to queries
 class GeometryAnnotation():
-    def __init__(self, organism):
-        self.org = organism
+    def __init__(self, organisms):
+        self.org = organisms # Store the organism info
+        self.anno_type = 'N/A'
+        self.name = 'N/A'
 
     def __repr__(self):
+        # Custom representation when printing an instance
         return f'<KeggAnnotation: {self.anno_type} - {self.name}>'
 
-    def _get_description(self, anno_type, anno_name):
+    def _get_description(self, anno_type, anno_name, annotations):
         """
         Use rest data to get the description of an annotation query.
 
@@ -39,9 +42,9 @@ class GeometryAnnotation():
             str: The description for the given annotation or an empty string if not found.
         """
 
-        if anno_name in anno_type:
-
-            result = anno_type[anno_name]
+        if anno_name in annotations[anno_type]:
+            # Remove/replace problematic characters for svg
+            result = annotations[anno_type][anno_name]
             result = result.replace("'", "")
             result = result.replace("<->", "(1->4)")
             result = result.replace("<=>", "(1->4)")
@@ -49,71 +52,75 @@ class GeometryAnnotation():
             return result
         else:
             return ""
+        
 
-    def get_annotation(self, queries: [dict], annotations):
+    def get_annotation(self, queries: [dict], annotations: {}):
         """
-        Create annotation and get the description of the annotation.
-
-        :param query1: list describing the query type e.g. map, gene, enzyme, compound, etc.
-        :param query2: query to be annotated e.g.cpd:C000500 (actual name of the compound in the map)
-        :return: description. If none is found, an empty string is returned and a warning is printed.
+        Process queries and retrieve formatted annotation for elements of queries
+        
+        Args:
+            queries ([dict]): list of dictionaries. Each dictionary contatins queries to be annotated.
+            annotations (dict): Reference Annotation dictionary.
+        
+        Returns:
+            Structured dictionary with annotation descriptions and metadata. If none is found, an empty string is returned.
         """
         # Create empty dictionary and empty lists for later
-        dictionary = {}
-        data_annotations = []
-        html_classes = []
-        title_descriptions = []
+        dictionary = {}           # Final result container
+        data_annotations = []     # List of processed annotation entries
+        html_classes = []         # Stores HTML classes used for visualization
+        title_descriptions = []   # Titles or tooltips for the annotation elements
 
         existing_queries = ['compound', 'map', 'enzyme', 'ortholog', 'reaction', 'gene', 'group', 'brite', 'other']
-
-        # Assert that the query type is legitimate
+        
+        #Assert that the query type is legitimate
         for query in queries:
+            
             assert query['type'] in existing_queries
 
         for query in queries:
-            query_type = query['type'].lower()
-            query_name = query['name']
+            query_type = query['type'].lower() # Normalize the type to lowercase
+            query_name = query['name']         # Extract the annotation name
 
             # split string in query_name into multiple substrings based on whitespace characters.
-
             query_names = query_name.split()
 
             for part in query_names:
-                parts = part.split(":", 1)
+                parts = part.split(":", 1)     # Split into prefix and actual name
                 if len(parts) < 2:
                     anno_name = parts[0]
                 else:
                     anno_name = parts[1]
-
+                # Determine annotation type based on prefix or query type
                 if query_type in ('compound', 'reaction'):
                     anno_type = compound_reaction_mapping[parts[0]]
                 elif query_type == 'map':
                     anno_type = 'MAP'
-                    anno_name = 'map' + anno_name[-5:]
+                    anno_name = 'map' + anno_name[-5:]  # Format map name appropriately
                 else:
                     anno_type = query_type_mapping[query_type]
-
+                    
+                # set the class attribute anno_type
+                self.anno_type = anno_type
+                
+                # Get HTML class styling from settings
                 html_class = ANNOTATION_SETTINGS[anno_type]['html_class']
                 html_classes.append(html_class)
+                
+                # Format the annotation name differently for specific types
                 if anno_type == 'EC':
                     name = "EC:" + anno_name
                 elif anno_type == 'Gene':
-                    name = f"{self.org}:" + anno_name
-                    anno_name = f"{self.org}:" + anno_name
+                    name = parts[0]+":" + anno_name
+                    anno_name = name 
                 else:
                     name = anno_name
-
-                if anno_name in annotations[anno_type]:
-
-                    result = annotations[anno_type][anno_name]
-                    result = result.replace("'", "")
-                    result = result.replace("<->", "(1->4)")
-                    result = result.replace("<=>", "(1->4)")
-                else:
-                    result = ''
-
-                description = result
-
+                self.name = name
+                
+                # Look up description in reference annotation dictionary                
+                description = self._get_description(anno_type, anno_name, annotations)
+                
+                # Format the title (tooltip) depending on annotation type
                 if anno_type == 'EC' or anno_type == "RC" or anno_type == "R":
                     title_info = name
                 elif anno_type == 'MAP' or anno_type == 'BR':
@@ -123,10 +130,12 @@ class GeometryAnnotation():
 
                 title_descriptions.append(title_info)
 
+                # Store full annotation record in data_annotations
                 data_annotations.append(dict(type=anno_type, name=name, description=description
                                              ))
-
-        dictionary.update(dict(title=title_descriptions, visualizatin_class=list(set(html_classes)),
+        # Assemble Final dictionary
+        dictionary.update(dict(title=title_descriptions,
+                               visualizatin_class=list(set(html_classes)),
                                data_annotation=data_annotations
                                ))
         self.data_annotation = dictionary

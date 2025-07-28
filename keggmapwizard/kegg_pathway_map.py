@@ -8,10 +8,12 @@ from xml.etree import ElementTree as ET
 from pathlib import Path
 from keggmapwizard.config import config
 from keggmapwizard.download_data import (download_rest_data, download_base_png_maps,
-                                         download_kgml, check_input, extract_all_map_ids)
+                                         download_kgml, check_input, extract_all_map_ids,
+                                         check_map_prefix)
 from keggmapwizard.pathway import Pathway
 from keggmapwizard.base_image import BaseImage
 from keggmapwizard.svg_content import create_svg_content
+from keggmapwizard.color_function_base import color_org
 
 
 class KeggPathwayMap:
@@ -48,7 +50,7 @@ class KeggPathwayMap:
         __create_pathway(): Creates a pathway object based on the available file types.
         __base_image(): Retrieves the base image for the pathway from the specified path.
     """
-
+   
     def __init__(self, map_id=None, reload=False):
         print(f"Initializing an instance of {self.__class__.__name__}")
         print("Retreiving/downloading required resources.")
@@ -96,20 +98,41 @@ class KeggPathwayMap:
         str or None: The organism name derived from the map ID, or None if the 
                      organism cannot be determined or does not exist.
         """
-        if self._organism is None:
-            if self.map_id[:-5] not in ['ko', 'ec', 'rn', '']:
-                file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{self.map_id}.xml"
-                if os.path.exists(file_path):
-                    organism = self.map_id[:-5]
-                else:
-                    print(f"{self.map_id[:-5]} kgml file does not exist for {self.map_id[-5:]}")
-                    organism = None
+        if self._organism is not None:
+            return self._organism  # Return cached result
+        
+        prefix = self.map_id[:-5]
+        suffix = self.map_id[-5:]
+        
+        org_prefixes = check_map_prefix(prefix)
+        
+        filtered_prefixes = [item for item in org_prefixes if item not in 
+                             {'ko', 'ec', 'rn', 'map', 'Map', ''}]
+        
+        if len(filtered_prefixes) ==0:
+            self._organism = None
+            return None
+        
+        organisms_list = []
+        
+        for org in filtered_prefixes:
+            map_id = f"{org}{suffix}"
+            file_path = Path(config.working_dir) / "kgml_data" / "orgs" / f"{map_id}.xml"
+        
+            if file_path.exists():
+                organisms_list.append(org)
             else:
-                organism = None
+                print(f"{org} KGML file does not exist for {suffix}")
+        
+        if organisms_list:
+            organism_str = ":".join(organisms_list)
+            self._map_id = [f"{organism_str}:{suffix}"]
+            self._organism = organism_str
         else:
-            organism = self._organism
-        self._organism = organism
-        return self._organism
+            self._organism = None
+        
+        return self._organism          
+
 
     @property
     def pathway(self):
@@ -193,10 +216,13 @@ class KeggPathwayMap:
             download_base_png_maps([self.map_id], self._reload)
 
             if self.organism is not None:
-                kgml_file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{self.map_id}.xml"
-                if os.path.exists(kgml_file_path):
-                    rest_file = self.organism
-                    download_rest_data([rest_file], self._reload)
+                separated_org_list = self.organism.split(':')
+                for org in separated_org_list:
+                    map_id = org + self.map_id[-5:]
+                    kgml_file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{map_id}.xml"
+                    if os.path.exists(kgml_file_path):
+                        rest_file = org
+                        download_rest_data([rest_file], self._reload)
 
     def __file_types(self):
         """
@@ -225,11 +251,16 @@ class KeggPathwayMap:
                 existing_file_types.append(file_type)
 
         if self.organism is not None:
-            kgml_file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{self.map_id}.xml"
-            if os.path.exists(kgml_file_path):
-                existing_file_types.append('orgs')
+            
+            separated_org_list = self.organism.split(':')
+            for org in separated_org_list:
+                map_id = org + self.map_id[-5:]
+                kgml_file_path = Path(config.working_dir) / "kgml_data" / 'orgs' / f"{map_id}.xml"
 
-        return existing_file_types
+                if os.path.exists(kgml_file_path):
+                    existing_file_types.append('orgs')
+
+        return list(set(existing_file_types))
 
     def __create_pathway(self):
         """
@@ -255,7 +286,7 @@ class KeggPathwayMap:
         file_types = self.__file_types()
         if len(file_types) != 0:
             # pathway = Pathway(self.map_id)
-
+            
             if 'orgs' in file_types:
                 pathway = Pathway(self.map_id, file_types)
             else:
@@ -288,7 +319,7 @@ class KeggPathwayMap:
 
         return base_image
 
-    def create_svg_map(self, color_function=None, path=None, output_name=None, *args, ):
+    def create_svg_map(self, color_function=None,*args, path=None, output_name=None):
         """
         Creates an SVG representation of the KEGG pathway map and saves it to a specified location.
         
@@ -317,14 +348,15 @@ class KeggPathwayMap:
         object: The SVG pathway object created. Returns None if the pathway or base image 
                 is not available.
         """
+        
         if self.base_image is None or self.pathway is None:
             print('No pathway to create')
             svg_pathway_object = None
         else:
-
             svg_pathway_object = create_svg_content(self.pathway, self.base_image,
                                                     color_function, *args)
             # Create directory for SVG outputs
+            
             if path is None:
                 out_dir = Path(config.working_dir) / "SVG_output"
             else:

@@ -16,7 +16,7 @@ class KgmlFile:
         if self.file_type == 'orgs':
             return self.map_id
         else:
-            return self.file_type + f"{self.file_type}{self.map_id[-5:]}"
+            return self.file_type + f"{self.map_id[-5:]}"
 
     @property
     def file_directory(self):

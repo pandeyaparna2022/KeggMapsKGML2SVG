@@ -35,7 +35,7 @@ def __create_namespace(base_image, title):
 def create_svg_content(pathway, base_image, color_function, *args):
     # Assign the value of fill_color to the variable fill
     pathway_components = pathway.pathway_components
-
+    
     # Call the _create_namespace function with the pathway_id, width, and height
     # parameters and assign the result to the doc variable
     doc = __create_namespace(base_image, pathway.title)

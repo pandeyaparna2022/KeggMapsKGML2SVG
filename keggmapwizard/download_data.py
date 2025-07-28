@@ -25,27 +25,34 @@ def download_data(url: str, arg: str, path: str, verbose: bool = True):
     Returns:
         None
     """
-
-    def save_file(content, file_name, mode='w'):
+    def save_file(data, file_name, mode='w'):
         """Helper function to save content to a file."""
         with open(Path(path) / f'{file_name}', mode) as file:
-            file.write(content)
+            file.write(data)
         if verbose:
-            print(f"Saved {file_name}")
+            print(f"Saved to {file_name}")
 
     def log_bad_request():
         """Helper function to log bad requests."""
-        save_file(arg + '\n', 'bad_requests.txt', mode='a')
-        if verbose:
-            print(f"Data non-existent for query: {arg}. Status code: {error_code}")
-
+        
+        file_path = Path(path) /  'bad_requests.txt'
+        
+        # Ensure the file exists; create it if it doesn't
+        file_path.parent.mkdir(parents=True, exist_ok=True)  # Create missing directories
+        file_path.touch(exist_ok=True)  # Now safe to touch the file
+        
+        with open(file_path, 'r') as file:
+            bad_requests = file.read().splitlines()
+        if arg not in bad_requests:
+            save_file(arg + '\n', 'bad_requests.txt',mode = 'a')
+            if verbose:
+                print(f"Data non-existent for query: {arg}. Status code: {error_code}")
+    if verbose:
+        print(f"Attempting to download {arg}...")
     try:
         # Make the request
         with urllib.request.urlopen(url) as response:
             data = response.read()
-
-            if verbose:
-                print(f"Downloading {arg}...")
 
             # Define URL patterns for kgml and PNG file types
             pattern1 = r'^http://rest\.kegg\.jp/get/[^/]+/kgml$'
@@ -63,6 +70,7 @@ def download_data(url: str, arg: str, path: str, verbose: bool = True):
             else:
                 file_name = f'{arg}.txt'
                 save_file(data.decode('utf-8'), file_name)
+            
 
     except urllib.error.HTTPError as error:
         # Handle HTTP error codes (e.g., 400, 404)
@@ -100,7 +108,7 @@ def download_rest_data(
     # 1) in bad_requests and
     # 2) already present only if reload == True
 
-    args_list = check_bad_requests(args_list, path, bad_requests_file, verbose)
+    args_list = check_bad_requests(args_list, path, bad_requests_file, verbose,reload)
 
     if not reload:
         args_list = [args for args in args_list if not os.path.isfile(path / f'{args}.txt')]
@@ -242,15 +250,15 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
     os.makedirs(path, exist_ok=True)
     # Check if any of the arguments in the map_ids are
     # 1) in bad_requests and
-    # 2) already present only if reload == True
-
-    map_ids = check_bad_requests(map_ids, path, bad_requests_file, verbose)
+    # 2) already present 
+    
+    map_ids = check_bad_requests(map_ids, path, bad_requests_file, verbose,reload)
     map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
 
     if not reload:
         map_ids = [map_id for map_id in map_ids if not os.path.isfile(path / f'map{map_id[-5:]}.json')]
         map_numbers = list(set(map(lambda x: x[-5:], map_ids)))
-
+    
     if len(map_ids) == 0:
         if verbose:
             print("No New PNG map/s to download.")
@@ -267,9 +275,8 @@ def download_base_png_maps(map_ids: [str], reload: bool = False,
             # download all the maps in the filtered maps_id list
             url = f'https://www.genome.jp/kegg/pathway/map/map{map_number}.png'
             # Call the download_data function to download the data
-            print(map_number)
             download_data(url, map_number, path, verbose)
-
+            
             # Call the encode_png function to modify the saved image
             encode_png(path / f'map{map_id[-5:]}.png')
 
@@ -353,13 +360,16 @@ def download_kgml(
         rn_map_ids.append(rn_map_id)
 
         if map_prefix != "map" and map_prefix != "":
-            org_map_id = map_prefix + map_number
-            org_map_ids.append(org_map_id)
+            map_prefixes = check_map_prefix(map_prefix)
+            
+            for map_prefix in map_prefixes:
+                org_map_id = map_prefix + map_number
+                org_map_ids.append(org_map_id)
 
-    ko_map_ids = check_bad_requests(list(set(ko_map_ids)), path / "ko", bad_requests_file, verbose)
-    ec_map_ids = check_bad_requests(list(set(ec_map_ids)), path / "ec", bad_requests_file, verbose)
-    rn_map_ids = check_bad_requests(list(set(rn_map_ids)), path / "rn", bad_requests_file, verbose)
-    org_map_ids = check_bad_requests(list(set(org_map_ids)), path / "orgs", bad_requests_file, verbose)
+    ko_map_ids = check_bad_requests(list(set(ko_map_ids)), path / "ko", bad_requests_file, verbose,reload)
+    ec_map_ids = check_bad_requests(list(set(ec_map_ids)), path / "ec", bad_requests_file, verbose,reload)
+    rn_map_ids = check_bad_requests(list(set(rn_map_ids)), path / "rn", bad_requests_file, verbose,reload)
+    org_map_ids = check_bad_requests(list(set(org_map_ids)), path / "orgs", bad_requests_file, verbose,reload)
 
     if not reload:
         ko_map_ids = [map_id for map_id in ko_map_ids if not os.path.isfile(path / "ko" / f"{map_id}.xml")]
@@ -369,7 +379,7 @@ def download_kgml(
 
     files_to_download = ko_map_ids + ec_map_ids + rn_map_ids + org_map_ids
 
-    print(f"Missing kgml files: {files_to_download}")
+    print(f"Files to download: {files_to_download}")
 
     for i in range(len(ko_map_ids)):
         if verbose:
@@ -407,7 +417,7 @@ def download_kgml(
         print(f"Total time taken to finish task: {total_time} seconds")
 
 
-def check_bad_requests(args_list: list, path: Path | str, bad_requests_file: Path | str, verbose: bool) -> list:
+def check_bad_requests(args_list: list, path: Path | str, bad_requests_file: Path | str, verbose: bool, reload:bool) -> list:
     """
     Checks if the arguments/files to be downloaded are in the bad_requests.txt
     Args:
@@ -426,49 +436,52 @@ def check_bad_requests(args_list: list, path: Path | str, bad_requests_file: Pat
         with open(Path(path) / bad_requests_file, 'r') as file:
             bad_requests = file.read().splitlines()
 
-    ################ This is more for printing if verbose == True #############
-    # For printing
-    if verbose and bad_requests:
+    if bad_requests:
 
         # Find the args  that are already noted as bad_requests
         filtered_args = [args for args in args_list if args in bad_requests]
         # Print the args that are noted as bad_requests
+        
+            
         for args in filtered_args:
-            print(f'{args} was previously identified as a bad request and will \
-therefore not be downloaded.')
+            if not reload:
+                # Filter the args_list to include only files that are not in the list
+                # of bad requests.
+                args_list = [args for args in args_list if args not in bad_requests]
+                if verbose:
+                    print(f'{args} was previously identified as a bad request and will '
+                          f'therefore not be downloaded.')
+            else:
+                if verbose:
+                    print(f'{args} was previously identified as a bad request. '
+                          f'Attempting to download again.')
 
-    # Filter the args_list to include only files that are not in the list
-    # of bad requests.
-    args_list = [args for args in args_list if args not in bad_requests]
 
     return args_list
 
 
 def check_input(map_ids: list):
-    # Check if input is a list
+    # Ensure the input is of type list; otherwise print an error and return empty list
     if not isinstance(map_ids, list):
         print("map_ids is not a list. Please provide a list of map IDs.")
         return []
     ##### Check if elements of map_ids fit the required format ############
 
-    # Create an empty list to add only the map_ids that fit the criteria
+    # Initialize an empty list to store validated and formatted map IDs
     map_id_list = []
+    # Convert all elements in map_ids to strings to standardize format
     map_ids = list(map(str, map_ids))
+    # Loop through each map ID in the input list
     for map_id in map_ids:
+        # Check for empty string and warn if no map ID was provided
         if map_id == "":
             print("No map id provided.")
-        # check if the string variable map_id contains a period ('.'). in case the map id was
-        # provided with a extension
-        # assign the substring of map_id from the beginning up to (but not including)
-        # the index of the period to the variable map_id.
+        # If map ID has a file extension, remove it (i.e., strip content after last '.')
         if "." in map_id:
             index = map_id.rindex(".")
             map_id = map_id[:index]
-        # convert map_id to string
 
-        map_id = str(map_id)
-
-        # check if the map id is only digits
+        # If the entire ID is made of digits
         if map_id.isdigit():
             # check if the length of the map number is less than 5, if so
             # pad it with leading zeros and appened it to filtered list
@@ -477,38 +490,54 @@ def check_input(map_ids: list):
                 map_id_list.append(map_id)
             # else print a warning stating the format is not correct
             else:
-                print(f"{map_id} is Not a valid map_id. Maximum length allowd"
-                      "for a map number is 5.")
+                print(f"{map_id} is Not a valid map_id. Maximum length allowed"
+                      " for a map number is 5.")
         # Check if map_id is just characters and if so print a warning msg.
         elif map_id.isalpha():
+            # Special case: handle "None" input as missing map ID
             if map_id == "None":
                 print("No map id provided.")
+            # Warn that alphabetical-only IDs are invalid
             else:
                 print(f"{map_id} is Not a valid map_id. Map id cannot just be characters.")
         # check if map_id fits the criteria
         # characters followed by number and the length of number is less than no more than 5
+        # Handle mixed inputs like 'ko400' or 'map05412'
         else:
             for i in range(len(map_id)):
 
                 if map_id[i].isdigit():
-
+                    # Check that everything from this digit onward is numeric
                     if map_id[i:].isdigit():
-                        map_number = map_id[i:]
-                        prefix = map_id[:i]
+                        map_number = map_id[i:] # Extract numeric part
+                        prefix = map_id[:i]     # Extract alphabetic prefix
 
                         if len(map_number) <= 5:
 
-                            map_number = str(map_number).zfill(5)
+                            map_number = str(map_number).zfill(5) # Pad to 5 digits
+                            # If prefix isn't 'map', keep it; otherwise drop it
                             if prefix != 'map':
                                 map_id = prefix + map_number
                             else:
                                 map_id = map_number
                             map_id_list.append(map_id)
                         else:
-                            print(f"{map_id} is Not a valid map_id. Maximum length allowd"
+                            print(f"{map_id} is Not a valid map_id. Maximum length allowed"
                                   " for a map number is 5.")
                         break
                     else:
-                        print(f"{map_id} is Not a valid map_id.")
+                        print(f"{map_id} is Not a valid map id.")
                         break
-    return map_id_list
+    # Return unique, validated map IDs
+    return list(set(map_id_list))  #changed
+
+def check_map_prefix(map_prefix: str) -> list:
+    """
+    Splits a map_prefix string by ':' or '+', filters out unwanted tokens like 'map' and empty strings,
+    and returns a cleaned list of meaningful components.
+    """
+    return [part for part in re.split(r'[:+]', map_prefix) if part and part != 'map']
+
+
+    
+    
