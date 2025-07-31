@@ -21,8 +21,7 @@ query_type_mapping = {
 
 # GeometryAnnotation class for providing annotations to queries
 class GeometryAnnotation():
-    def __init__(self, organisms):
-        self.org = organisms # Store the organism info
+    def __init__(self):
         self.anno_type = 'N/A'
         self.name = 'N/A'
 

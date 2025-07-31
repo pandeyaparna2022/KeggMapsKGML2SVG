@@ -9,7 +9,7 @@ FILL = "transparent"
 BASE_PROFILE = 'full'
 
 
-def __create_namespace(base_image, title):
+def _create_namespace(base_image, title):
     # Create the SVG element with the specified id, width, height, version,
     # baseprofile, and xmlns attributes
 
@@ -38,7 +38,7 @@ def create_svg_content(pathway, base_image, color_function, *args):
     
     # Call the _create_namespace function with the pathway_id, width, and height
     # parameters and assign the result to the doc variable
-    doc = __create_namespace(base_image, pathway.title)
+    doc = _create_namespace(base_image, pathway.title)
     # Create an XML element with the tag 'g' and attribute 'name' set to 'shapes'
     # and assign it to the group variable
     group = ET.Element('g', {'name': 'shapes'})

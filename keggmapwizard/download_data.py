@@ -466,7 +466,9 @@ def check_input(map_ids: list):
         print("map_ids is not a list. Please provide a list of map IDs.")
         return []
     ##### Check if elements of map_ids fit the required format ############
-
+    if len(map_ids) == 0:
+        print("No map id provided")
+        return []
     # Initialize an empty list to store validated and formatted map IDs
     map_id_list = []
     # Convert all elements in map_ids to strings to standardize format
